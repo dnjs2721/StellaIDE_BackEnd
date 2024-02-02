@@ -10,6 +10,8 @@ build/
 
 ### config ###
 **/src/main/resources/application-database.yml
+**/src/main/resources/application-redis.yml
+**/src/main/resources/application-mail.yml
 
 ### STS ###
 .apt_generated
