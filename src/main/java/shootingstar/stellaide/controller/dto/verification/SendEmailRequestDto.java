@@ -1,4 +1,4 @@
-package shootingstar.stellaide.controller.dto;
+package shootingstar.stellaide.controller.dto.verification;
 
 import jakarta.validation.constraints.Email;
 import lombok.Data;

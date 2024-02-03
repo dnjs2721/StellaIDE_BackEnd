@@ -18,8 +18,6 @@ public class MailConfig {
     @Bean
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        System.out.println(username);
-        System.out.println(password);
 
         javaMailSender.setHost("smtp.naver.com");
         javaMailSender.setUsername(username);
