@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
                 }
             }
 
-            if (!errorCode.equals(INCORRECT_FORMAT_CODE)) {
+            if (!errorCode.equals(INCORRECT_FORMAT)) {
                 break;
             }
         }
