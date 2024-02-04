@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import static shootingstar.stellaide.exception.ErrorCode.*;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -14,23 +16,32 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         BindingResult bindingResult = e.getBindingResult();
 
-        ErrorCode errorCode = ErrorCode.INCORRECT_FORMAT;
+        ErrorCode errorCode = INCORRECT_FORMAT;
         for (FieldError fieldError : bindingResult.getFieldErrors()) {
             switch (fieldError.getField()) {
                 case "email" -> {
-                    errorCode = ErrorCode.INCORRECT_FORMAT_EMAIL;
+                    errorCode = INCORRECT_FORMAT_EMAIL;
                     break;
                 }
                 case "code" -> {
-                    errorCode = ErrorCode.INCORRECT_FORMAT_CODE;
+                    errorCode = INCORRECT_FORMAT_CODE;
                     break;
                 }
                 case "nickname" -> {
-                    errorCode = ErrorCode.INCORRECT_FORMAT_NICKNAME;
+                    errorCode = INCORRECT_FORMAT_NICKNAME;
+                    break;
+                }
+                case "password" -> {
+                    errorCode = INCORRECT_FORMAT_PASSWORD;
                     break;
                 }
             }
+
+            if (!errorCode.equals(INCORRECT_FORMAT_CODE)) {
+                break;
+            }
         }
+
         return ResponseEntity.status(errorCode.getHttpStatus()).body(new ErrorResponse(errorCode));
     }
 
