@@ -13,7 +13,7 @@ spring:
   #        show_sql: true
 
   profiles:
-    include: database
+    include: database, redis, mail
 
 logging:
   level:
