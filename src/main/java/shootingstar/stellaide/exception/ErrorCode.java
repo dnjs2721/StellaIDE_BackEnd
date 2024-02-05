@@ -10,7 +10,7 @@ public enum ErrorCode {
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "0000", "알 수 없는 오류가 발생했습니다."),
     AUTH_ERROR_EMAIL(BAD_REQUEST, "0001", "잘못된 키 혹은 잘못(만료) 된 인증 코드입니다."),
     VALIDATE_ERROR_EMAIL(BAD_REQUEST, "0002", "안증이 만료되었거나 인증되지 않은 이메일입니다."),
-    INCORRECT_FORMAT(BAD_REQUEST, "1100", "잘못된 입력입니다."),
+    INCORRECT_FORMAT(BAD_REQUEST, "0100", "잘못된 입력입니다."),
     INCORRECT_FORMAT_EMAIL(BAD_REQUEST, "1101", "잘못된 형식의 이메일입니다."),
     INCORRECT_FORMAT_CODE(BAD_REQUEST, "1102", "잘못된 형식의 인증코드입니다."),
     INCORRECT_FORMAT_NICKNAME(BAD_REQUEST, "1103", "잘못된 형식의 닉네임입니다."),
