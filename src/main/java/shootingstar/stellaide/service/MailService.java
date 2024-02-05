@@ -8,6 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import shootingstar.stellaide.exception.CustomException;
+import shootingstar.stellaide.exception.ErrorCode;
 import shootingstar.stellaide.util.RedisUtil;
 
 import java.util.Random;
@@ -40,8 +42,9 @@ public class MailService {
     public void validateCode(String key, String value) {
         if (redisUtil.hasKey(key) && redisUtil.getData(key).equals(value)) {
             redisUtil.deleteData(key);
+            redisUtil.setDataExpire(key, "validate", 15);
         } else {
-            throw new IllegalArgumentException("잘못된 키 혹은 잘못(만료) 된 인증 코드입니다.");
+            throw new CustomException(ErrorCode.AUTH_ERROR_EMAIL);
         }
     }
 
