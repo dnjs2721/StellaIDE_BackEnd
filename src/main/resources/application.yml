@@ -1,11 +1,14 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+  web:
+    resources:
+      add-mappings: false
 
   ## JPA Setting Info
   jpa:
     hibernate:
-      ddl-auto: create  # option type: create, create-drop, update, validate, none
+      ddl-auto: none  # option type: create, create-drop, update, validate, none
     properties:
       hibernate:
         format_sql: true
@@ -13,8 +16,9 @@ spring:
   #        show_sql: true
 
   profiles:
-    include: database, redis, mail
+    include: database, redis, mail, jwt
 
 logging:
   level:
     org.hibernate.sql: debug
+#    root: trace

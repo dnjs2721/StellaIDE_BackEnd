@@ -10,7 +10,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.exception.ErrorCode;
-import shootingstar.stellaide.util.RedisUtil;
+import shootingstar.stellaide.util.MailRedisUtil;
 
 import java.util.Random;
 
@@ -19,7 +19,7 @@ import java.util.Random;
 public class MailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
-    private final RedisUtil redisUtil;
+    private final MailRedisUtil mailRedisUtil;
 
     @Value("${fromMail}")
     private String fromEmail;
@@ -36,13 +36,12 @@ public class MailService {
 
         // 메시지 전송
         mailSender.send(message);
-        redisUtil.setDataExpire(email, code, 5);
+        mailRedisUtil.setDataExpire(email, code, 5 * 60 * 1000);
     }
 
     public void validateCode(String key, String value) {
-        if (redisUtil.hasKey(key) && redisUtil.getData(key).equals(value)) {
-            redisUtil.deleteData(key);
-            redisUtil.setDataExpire(key, "validate", 15);
+        if (mailRedisUtil.hasKey(key) && mailRedisUtil.getData(key).equals(value)) {
+            mailRedisUtil.setDataExpire(key, "validate", 15 * 60 * 1000);
         } else {
             throw new CustomException(ErrorCode.AUTH_ERROR_EMAIL);
         }

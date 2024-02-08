@@ -12,6 +12,7 @@ build/
 **/src/main/resources/application-database.yml
 **/src/main/resources/application-redis.yml
 **/src/main/resources/application-mail.yml
+**/src/main/resources/application-jwt.yml
 
 ### STS ###
 .apt_generated
