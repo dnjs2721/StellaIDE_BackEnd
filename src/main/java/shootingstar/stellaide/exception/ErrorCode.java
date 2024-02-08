@@ -30,8 +30,8 @@ public enum ErrorCode {
     INCORRECT_FORMAT_NICKNAME(BAD_REQUEST, "1003", "잘못된 형식의 닉네임입니다."),
     INCORRECT_FORMAT_PASSWORD(BAD_REQUEST, "1004", "잘못된 형식의 비밀번호입니다."),
 
-    AUTH_ERROR_EMAIL(BAD_REQUEST, "1101", "잘못된 키 혹은 잘못(만료) 된 인증 코드입니다."),
-    VALIDATE_ERROR_EMAIL(UNAUTHORIZED, "1102", "안증이 만료되었거나 인증되지 않은 이메일입니다."),
+    AUTH_ERROR_EMAIL(UNAUTHORIZED, "1101", "잘못된 키 혹은 잘못(만료) 된 인증 코드입니다."),
+    VALIDATE_ERROR_EMAIL(UNAUTHORIZED, "1102", "인증이 만료되었거나 인증되지 않은 이메일입니다."),
     USER_NOT_FOUND(CONFLICT, "1103", "존재하지 않는 사용자 이거나 잘못된 패스워드입니다."),
 
     DUPLICATE_EMAIL(CONFLICT, "1301", "이미 사용중인 이메일입니다."),

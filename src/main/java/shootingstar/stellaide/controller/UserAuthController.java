@@ -52,7 +52,7 @@ public class UserAuthController {
         HttpHeaders headers = new HttpHeaders(); // 헤더에 엑세스 토큰을 저장한다.
         headers.set("Authorization", "Bearer " + tokenInfo.getAccessToken());
 
-        return ResponseEntity.ok().headers(headers).body("로그인에 성공하였습니다.");
+        return ResponseEntity.ok().headers(headers).body("성공적으로 로그인 되었습니다.");
     }
 
     @DeleteMapping("/logout")
