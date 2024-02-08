@@ -15,7 +15,7 @@ import shootingstar.stellaide.service.MailService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/verification")
-public class VerificationController {
+public class EmailVerificationController {
 
     private final MailService mailService;
 
