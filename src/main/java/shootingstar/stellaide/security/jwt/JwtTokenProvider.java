@@ -27,15 +27,13 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key accessKey;
     private final Key refreshKey;
-
-    // Access token 만료시간
-    private final static int ACCESS_EXPIRE = 10 * 60 * 1000 ;
-    // Refresh token 만료시간
-    private final static int REFRESH_EXPIRE = 20 * 60 * 1000 ;
-
+    private final TokenProperty tokenProperty;
     private final CustomUserDetailService userDetailService;
 
-    public JwtTokenProvider(@Value("${jwt.secret-access}") String accessSecretKey, @Value("${jwt.secret-refresh}") String refreshSecretKey, CustomUserDetailService userDetailService) {
+    public JwtTokenProvider(@Value("${jwt.secret-access}") String accessSecretKey,
+                            @Value("${jwt.secret-refresh}") String refreshSecretKey,
+                            TokenProperty tokenProperty, CustomUserDetailService userDetailService) {
+        this.tokenProperty = tokenProperty;
         this.userDetailService = userDetailService;
         byte[] accessKeyBytes = Decoders.BASE64.decode(accessSecretKey);
         byte[] refreshKeyBytes = Decoders.BASE64.decode(refreshSecretKey);
@@ -50,7 +48,7 @@ public class JwtTokenProvider {
         String accessToken = generateAccessToken(authentication, now);
         String refreshToken = generateRefreshToken(authentication, now);
 
-        return new TokenInfo("Bearer", accessToken, refreshToken, (new Date(now + REFRESH_EXPIRE).getTime()));
+        return new TokenInfo("Bearer", accessToken, refreshToken, (new Date(now + tokenProperty.getREFRESH_EXPIRE()).getTime()));
     }
 
     // 권한 가지고 오기
@@ -62,7 +60,7 @@ public class JwtTokenProvider {
 
     // 엑세스 토큰 생성 메서드
     public String generateAccessToken(Authentication authentication, long now) {
-        Date accessTokenExpiresIn = new Date(now + ACCESS_EXPIRE); // 30분 후 만료
+        Date accessTokenExpiresIn = new Date(now + tokenProperty.getACCESS_EXPIRE()); // 30분 후 만료
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
@@ -75,7 +73,7 @@ public class JwtTokenProvider {
 
     // 리프레시 토큰 생성 메서드
     public String generateRefreshToken(Authentication authentication, long now) {
-        Date refreshTokenExpiresIn = new Date(now + REFRESH_EXPIRE); // 1일 후 만료
+        Date refreshTokenExpiresIn = new Date(now + tokenProperty.getREFRESH_EXPIRE()); // 1일 후 만료
 
         return Jwts.builder()
                 .setSubject(authentication.getName())

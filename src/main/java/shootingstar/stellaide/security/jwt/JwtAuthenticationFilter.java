@@ -27,6 +27,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final LoginListRedisUtil loginListRedisUtil;
+    private final TokenProperty tokenProperty;
 
     // JWT 인증 필터
     @Override
@@ -70,7 +71,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                 String username = authentication.getName();
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 String nowValueToStore = String.format("{\"loginTime\":\"%s\"}", dateFormat.format(new Date()));
-                loginListRedisUtil.setDataExpire(username, nowValueToStore, 10 * 60 * 1000);
+                loginListRedisUtil.setDataExpire(username, nowValueToStore, tokenProperty.getACCESS_EXPIRE());
             }
         } catch (CustomException e) {
             // 검증 과정에서 예외가 발생했을 경우

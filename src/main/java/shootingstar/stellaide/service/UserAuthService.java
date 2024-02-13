@@ -1,11 +1,11 @@
 package shootingstar.stellaide.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -17,11 +17,12 @@ import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.user.UserRepository;
 import shootingstar.stellaide.security.jwt.JwtTokenProvider;
 import shootingstar.stellaide.security.jwt.TokenInfo;
+import shootingstar.stellaide.security.jwt.TokenProperty;
 import shootingstar.stellaide.util.JwtRedisUtil;
 import shootingstar.stellaide.util.LoginListRedisUtil;
 import shootingstar.stellaide.util.MailRedisUtil;
+import shootingstar.stellaide.util.SSHConnectionUtil;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 import static shootingstar.stellaide.exception.ErrorCode.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
@@ -38,10 +40,12 @@ public class UserAuthService {
     private final JwtRedisUtil jwtRedisUtil;
     private final MailRedisUtil mailRedisUtil;
     private final LoginListRedisUtil loginListRedisUtil;
+    private final SSHConnectionUtil sshConnectionUtil;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenProperty tokenProperty;
 
     // 회원 가입
     @Transactional
@@ -63,12 +67,7 @@ public class UserAuthService {
         if (oldRefreshToken != null) { // 만약 발급 받은 리프레시 토큰이 있다면
             String data = jwtRedisUtil.getData(oldRefreshToken); // 해당 리프레시 토큰 무효화
             if (data != null) {
-                try {
-                    expiredRefreshToken(oldRefreshToken, data);
-                } catch (Exception e) {
-                    // JSON 파싱 중 오류 처리
-                    throw new CustomException(INVALID_REFRESH_TOKEN);
-                }
+                expiredRefreshToken(oldRefreshToken, data);
             }
         }
 
@@ -96,42 +95,120 @@ public class UserAuthService {
             String valueToStore = String.format("{\"status\":\"%s\", \"expireTime\":\"%s\"}", "active", formattedDate);
 
             // JWT redis 에 key : 리프레시 토큰, value : 상태, 만료시간 을 저장
-            jwtRedisUtil.setDataExpire(tokenInfo.getRefreshToken(), valueToStore , 20 * 60 * 1000);
+            jwtRedisUtil.setDataExpire(tokenInfo.getRefreshToken(), valueToStore , tokenProperty.getREFRESH_EXPIRE());
 
             // loginList redis 에 자장될 value 생성
             String nowValueToStore = String.format("{\"loginTime\":\"%s\"}", dateFormat.format(new Date()));
             // Login Redis 에 key : 사용자 고유번호, value : 마지막 활동시간 을 저장
-            loginListRedisUtil.setDataExpire(username, nowValueToStore, 10 * 60 * 1000);
+            loginListRedisUtil.setDataExpire(username, nowValueToStore, tokenProperty.getACCESS_EXPIRE());
 
             return tokenInfo;
         } catch (AuthenticationException e) {
             // 인증 실패 시의 처리 로직
-            throw new CustomException(USER_NOT_FOUND);
+            throw new CustomException(USER_NOT_FOUND_AT_LOGIN);
         }
     }
 
     // 로그 아웃
-    public String logout(String refreshToken) {
+    public void logout(String refreshToken, String userUuid) {
         // jwt redis 에서 해당 토큰의 정보를 가지고 온다.
         String data = jwtRedisUtil.getData(refreshToken);
-        String userName;
         if (data != null) {
-            // JSON 문자열을 객체로 변환 (예시는 Jackson 라이브러리 사용)
-            try {
-                // 해당 토큰을 복호화 하여 정보를 가지고 온다.
-                Authentication authentication = jwtTokenProvider.getAuthenticationFromRefreshToken(refreshToken);
-                userName = authentication.getName(); // 가져온 정보에서 사용자 고유번호를 얻는다.
-                loginListRedisUtil.deleteData(userName); // 로그인 리스트에서 해당 사용자를 삭제한다.
-
-                expiredRefreshToken(refreshToken, data); // 해당 토큰을 무효화 시킨다.
-            } catch (Exception e) {
-                // JSON 파싱 중 오류 처리
-                throw new CustomException(INVALID_REFRESH_TOKEN);
-            }
+            loginListRedisUtil.deleteData(userUuid); // 로그인 리스트에서 해당 사용자를 삭제한다.
+            expiredRefreshToken(refreshToken, data); // 해당 토큰을 무효화 시킨다.
         } else {
             throw new CustomException(INVALID_REFRESH_TOKEN);
         }
-        return userName;
+    }
+
+    // 회원탈퇴
+    @Transactional
+    public void deleteUser(String refreshToken, String userUuid) {
+        // 사용자 고유번호를 통해 사용자를 검색한다.
+        User findUser = findUserByUUID(userUuid);
+        logout(refreshToken, userUuid);
+        if (findUser.getProfileImg() != null) {
+            sshConnectionUtil.deleteProfileImg(findUser.getProfileImg());
+        }
+        userRepository.delete(findUser); // 해당 사용자를 삭제한다.
+    }
+
+    public boolean checkPassword(String password, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+
+        User findUser = findUserByUUID(userUuid);
+
+        return passwordEncoder.matches(password, findUser.getPassword());
+    }
+
+    @Transactional
+    public void changePassword(String password, String newPassword, String accessToken, String refreshToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+
+        User findUser = findUserByUUID(userUuid);
+
+        boolean passwordMatch = passwordEncoder.matches(password, findUser.getPassword());
+
+        if (passwordMatch) {
+            if (password.equals(newPassword)) {
+                throw new CustomException(PASSWORD_CURRENTLY_IN_USE);
+            }
+            logout(refreshToken, String.valueOf(findUser.getUserId()));
+
+            String encodeNewPassword = passwordEncoder.encode(newPassword);
+            findUser.changePassword(encodeNewPassword);
+        } else {
+            // 사용자에 저장된 패스워드가 다를 때 발생하는 오류
+            throw new CustomException(INCORRECT_VALUE_PASSWORD);
+        }
+    }
+
+    // accessToken 의 사용자 고유번호를 통해 사용자 검색
+    private User findUserByUUID(String userUuid) {
+        Optional<User> optionalUser = userRepository.findById(UUID.fromString(userUuid));
+        if (optionalUser.isEmpty()) {
+            // 엑세스 토큰을 통해 사용자를 찾지 못했을 때
+            // 이 오류가 발생한다면 이미 탈퇴한 회원이 만료되지 않은 엑세스 토큰을 통해 비밀번호 확인을 시도했거나
+            // 어떠한 방법으로 JWT 토큰의 사용자 고유번호를 변경했을 때
+            throw new CustomException(USER_NOT_FOUND);
+        }
+        return optionalUser.get();
+    }
+
+    // 리프레시 토큰 무효화 메서드
+    private void expiredRefreshToken(String refreshToken, String data) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            // 토큰 데이터를 JSON 형태로 변환한다,
+            JsonNode tokenData = objectMapper.readTree(data);
+
+            // 상태 정보를 expired 로 변경한다.
+            ((ObjectNode) tokenData).put("status", "expired");
+            // JSON 형태를 다시 string 으로 변환 한다.
+            String updatedTokenDataJson = tokenData.toString();
+
+            // 현재 토큰의 만료 시간을 체크한다.
+            String expireTimeString = tokenData.get("expireTime").asText();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            Date expireTime = sdf.parse(expireTimeString);
+            Date now = new Date();
+
+            // 현재를 기준으로 만료까지 남은 시간을 계산한다.
+            long secondsLeft = expireTime.getTime() - now.getTime();
+
+            // 업데이트된 정보와 계산된 만료 시간을 Redis에 저장
+            if (secondsLeft > 0) {
+                jwtRedisUtil.setDataExpire(refreshToken, updatedTokenDataJson, secondsLeft);
+            } else {
+                // 이미 만료된 경우, Redis에서 해당 토큰 삭제
+                jwtRedisUtil.deleteData(refreshToken);
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            throw new CustomException(INVALID_REFRESH_TOKEN);
+        }
     }
 
     // 리프레시 토큰 무효화 검증
@@ -170,49 +247,8 @@ public class UserAuthService {
         String name = authentication.getName();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String nowValueToStore = String.format("{\"loginTime\":\"%s\"}", dateFormat.format(new Date()));
-        loginListRedisUtil.setDataExpire(name, nowValueToStore, 10 * 60 * 1000);
+        loginListRedisUtil.setDataExpire(name, nowValueToStore, tokenProperty.getACCESS_EXPIRE());
 
         return newAccessToken;
-    }
-
-    // 로그 아웃
-    @Transactional
-    public void deleteUser(String username) {
-        // 사용자 고유번호를 통해 사용자를 검색한다.
-        Optional<User> optionalUser = userRepository.findByUserId(UUID.fromString(username));
-        if (optionalUser.isEmpty()) {
-            throw new CustomException(USER_NOT_FOUND);
-        }
-        User user = optionalUser.get();
-        userRepository.delete(user); // 해당 사용자를 삭제한다.
-    }
-
-    // 리프레시 토큰 무효화 메서드
-    private void expiredRefreshToken(String refreshToken, String data) throws JsonProcessingException, ParseException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        // 토큰 데이터를 JSON 형태로 변환한다,
-        JsonNode tokenData = objectMapper.readTree(data);
-
-        // 상태 정보를 expired 로 변경한다.
-        ((ObjectNode) tokenData).put("status", "expired");
-        // JSON 형태를 다시 string 으로 변환 한다.
-        String updatedTokenDataJson = tokenData.toString();
-
-        // 현재 토큰의 만료 시간을 체크한다.
-        String expireTimeString = tokenData.get("expireTime").asText();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date expireTime = sdf.parse(expireTimeString);
-        Date now = new Date();
-
-        // 현재를 기준으로 만료까지 남은 시간을 계산한다.
-        long secondsLeft = expireTime.getTime() - now.getTime();
-
-        // 업데이트된 정보와 계산된 만료 시간을 Redis에 저장
-        if (secondsLeft > 0) {
-            jwtRedisUtil.setDataExpire(refreshToken, updatedTokenDataJson, secondsLeft);
-        } else {
-            // 이미 만료된 경우, Redis에서 해당 토큰 삭제
-            jwtRedisUtil.deleteData(refreshToken);
-        }
     }
 }
