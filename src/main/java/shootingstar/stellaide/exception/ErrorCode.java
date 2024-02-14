@@ -11,6 +11,7 @@ public enum ErrorCode {
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "0000", "알 수 없는 오류가 발생했습니다."),
     INCORRECT_FORMAT(BAD_REQUEST, "0001", "잘못된 입력입니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED,"0002", "제공되지 않는 메서드입니다."),
+    STORAGE_ERROR(INTERNAL_SERVER_ERROR,"0003", "저장소 연결에 실패하였습니다."),
 
     AUTHENTICATION_ERROR(UNAUTHORIZED, "0100", "인증에 실패하였습니다."),
     ACCESS_DENIED(FORBIDDEN, "0101", "잘못된 접근입니다."),
@@ -32,11 +33,17 @@ public enum ErrorCode {
 
     AUTH_ERROR_EMAIL(UNAUTHORIZED, "1101", "잘못된 키 혹은 잘못(만료) 된 인증 코드입니다."),
     VALIDATE_ERROR_EMAIL(UNAUTHORIZED, "1102", "인증이 만료되었거나 인증되지 않은 이메일입니다."),
-    USER_NOT_FOUND(CONFLICT, "1103", "존재하지 않는 사용자 이거나 잘못된 패스워드입니다."),
+    USER_NOT_FOUND_AT_LOGIN(CONFLICT, "1103", "존재하지 않는 사용자 이거나 잘못된 패스워드입니다."), // 로그인시 발생하는 오류
+    INCORRECT_VALUE_PASSWORD(CONFLICT, "1104", "잘못된 패스워드입니다."), // 사용자 수정시 발생하는 오류
+
+    USER_NOT_FOUND(NOT_FOUND, "1201", "존재하지 않는 사용자입니다."), // 로그인을 제외한 사용자 확인에서 발생하는 오류
+    PROFILE_IMG_FILE_IS_EMPTY(NOT_FOUND, "1202", "빈 프로필 이미지 파일입니다."),
 
     DUPLICATE_EMAIL(CONFLICT, "1301", "이미 사용중인 이메일입니다."),
     DUPLICATE_NICKNAME(CONFLICT, "1302", "이미 사용중인 닉네임입니다."),
     FORBIDDEN_NICKNAME(FORBIDDEN, "1303", "허용되지 않는 닉네임입니다."),
+    PASSWORD_CURRENTLY_IN_USE(CONFLICT, "1304", "현재 사용중인 패스워드입니다. 다른 패스워드로 입력바랍니다."),
+    NOT_SUPPORT_IMG_TYPE(CONFLICT, "1305", "지원하지 않는 이미지 타입입니다. PNG 파일을 사용해주세요."),
     ;
 
     private final HttpStatus httpStatus;

@@ -4,7 +4,6 @@ spring:
   web:
     resources:
       add-mappings: false
-
   ## JPA Setting Info
   jpa:
     hibernate:
@@ -16,7 +15,7 @@ spring:
   #        show_sql: true
 
   profiles:
-    include: database, redis, mail, jwt
+    include: database, redis, mail, jwt, storage, port
 
 logging:
   level:

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchConnectionDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,20 +33,21 @@ public class User implements UserDetails {
     @NotBlank
     private String nickname;
 
-    private String profilePath;
-
-    public User(String email, String password, String nickname, String profilePath) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.profilePath = profilePath;
-    }
+    private String profileImg;
 
     public User(String email, String password, String nickname) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.profilePath = null;
+        this.profileImg = null;
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+    public void changeProfileImg(String newProfileImg) {
+        this.profileImg = newProfileImg;
     }
 
     @Override

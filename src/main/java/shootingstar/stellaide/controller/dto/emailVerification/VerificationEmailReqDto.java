@@ -1,4 +1,4 @@
-package shootingstar.stellaide.controller.dto.verification;
+package shootingstar.stellaide.controller.dto.emailVerification;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +12,6 @@ public class VerificationEmailReqDto {
     String email;
 
     @NotBlank
-    @Size(min = 8, max = 8, message = "잘못된 인증 코드입니다.")
+    @Size(min = 8, max = 8)
     String code;
 }

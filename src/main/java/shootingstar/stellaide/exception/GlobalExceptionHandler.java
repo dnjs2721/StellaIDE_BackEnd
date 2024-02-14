@@ -39,8 +39,12 @@ public class GlobalExceptionHandler {
                     errorCode = INCORRECT_FORMAT_NICKNAME;
                     break;
                 }
-                case "password" -> {
+                case "password", "newPassword" -> {
                     errorCode = INCORRECT_FORMAT_PASSWORD;
+                    break;
+                }
+                case "profileImgFile" -> {
+                    errorCode = PROFILE_IMG_FILE_IS_EMPTY;
                     break;
                 }
             }

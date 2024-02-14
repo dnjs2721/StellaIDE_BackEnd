@@ -13,6 +13,9 @@ build/
 **/src/main/resources/application-redis.yml
 **/src/main/resources/application-mail.yml
 **/src/main/resources/application-jwt.yml
+**/src/main/resources/application-storage.yml
+**/src/main/resources/application-port.yml
+**/src/main/resources/ssl/keystore.p12
 
 ### STS ###
 .apt_generated

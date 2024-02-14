@@ -52,6 +52,7 @@ class ChatRoomTest {
 
         Long chatRoomId = newChat.getChatRoomId();
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(chatRoomId);
+
         ChatRoom findChat = optionalChatRoom.get();
         Long findChatRoomId = findChat.getChatRoomId();
 
