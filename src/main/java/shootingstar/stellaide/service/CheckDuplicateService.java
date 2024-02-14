@@ -24,19 +24,25 @@ public class CheckDuplicateService {
     }
 
     public void checkDuplicateNickname(String nickname) {
-        if (!checkForbiddenNickname(nickname)) {
-            throw new CustomException(ErrorCode.FORBIDDEN_NICKNAME);
-        }
+        checkForbiddenNickname(nickname);
         if (userRepository.existsByNickname(nickname)) {
             throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
         }
     }
 
-    private boolean checkForbiddenNickname(String nickname) {
+    private void checkForbiddenNickname(String nickname) {
         // 영어(소문자) 와 숫자로만 이루어졌는지
-        String regex = "^[a-z0-9]+$";
+        String regex = "^(?=.*[a-z])(?=.*\\d)[a-z\\d]+$";
+
+        boolean matches = Pattern.matches(regex, nickname);
+        if (!matches) {
+            throw new CustomException(ErrorCode.INCORRECT_FORMAT_NICKNAME);
+        }
 
         // 정규 표현식과 매치되는지 확인, 금지어 사용 확인
-        return Pattern.matches(regex, nickname) && forbiddenWords.stream().noneMatch(nickname::contains);
+        boolean forbidden = forbiddenWords.stream().noneMatch(nickname::contains);
+        if (!forbidden) {
+            throw new CustomException(ErrorCode.FORBIDDEN_NICKNAME);
+        }
     }
 }

@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static shootingstar.stellaide.exception.ErrorCode.*;
 
@@ -53,6 +54,8 @@ public class UserAuthService {
         duplicateService.checkDuplicateEmail(email); // 이메일 중복 검사
         duplicateService.checkDuplicateNickname(nickname); // 닉네임 검사
 
+        checkValidPassword(password);
+
         if (mailRedisUtil.hasKey(email) && mailRedisUtil.getData(email).equals("validate")) { // 이메일 인증을 받은 이메일 인지 확인
             String encodePassword = passwordEncoder.encode(password); // 패스워드 암호화
             userRepository.save(new User(email, encodePassword, nickname));
@@ -64,6 +67,8 @@ public class UserAuthService {
 
     // 로그인
     public TokenInfo login(String email, String password, String oldRefreshToken) {
+        checkValidPassword(password);
+
         if (oldRefreshToken != null) { // 만약 발급 받은 리프레시 토큰이 있다면
             String data = jwtRedisUtil.getData(oldRefreshToken); // 해당 리프레시 토큰 무효화
             if (data != null) {
@@ -134,6 +139,8 @@ public class UserAuthService {
     }
 
     public boolean checkPassword(String password, String accessToken) {
+        checkValidPassword(password);
+
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
 
@@ -144,6 +151,9 @@ public class UserAuthService {
 
     @Transactional
     public void changePassword(String password, String newPassword, String accessToken, String refreshToken) {
+        checkValidPassword(password);
+        checkValidPassword(newPassword);
+
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
 
@@ -162,6 +172,16 @@ public class UserAuthService {
         } else {
             // 사용자에 저장된 패스워드가 다를 때 발생하는 오류
             throw new CustomException(INCORRECT_VALUE_PASSWORD);
+        }
+    }
+
+    private void checkValidPassword(String password) {
+        // 영어(대소문자), 특수문자 와 숫자로만 이루어졌는지
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]+$";
+        // 정규 표현식과 매치되는지 확인
+        boolean matches = Pattern.matches(regex, password);
+        if (!matches) {
+            throw new CustomException(INCORRECT_FORMAT_PASSWORD);
         }
     }
 
