@@ -6,4 +6,6 @@ import shootingstar.stellaide.entity.Container;
 import java.util.UUID;
 
 public interface ContainerRepository extends JpaRepository<Container, UUID>, ContainerRepositoryCustom {
+
+    boolean existsByName(String containerName);
 }
