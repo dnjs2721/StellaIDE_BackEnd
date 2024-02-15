@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import shootingstar.stellaide.entity.User;
+import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.exception.ErrorCode;
 import shootingstar.stellaide.repository.user.UserRepository;

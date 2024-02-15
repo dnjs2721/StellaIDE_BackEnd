@@ -1,10 +1,9 @@
-package shootingstar.stellaide.entity;
+package shootingstar.stellaide.entity.chat;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter

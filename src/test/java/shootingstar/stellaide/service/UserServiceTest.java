@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import shootingstar.stellaide.entity.User;
+import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.repository.user.UserRepository;
 
 import java.util.UUID;
