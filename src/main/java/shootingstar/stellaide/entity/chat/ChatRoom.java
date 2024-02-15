@@ -28,8 +28,8 @@ public class ChatRoom {
     private final List<ChatRoomMessage> messageList = new ArrayList<>();
 
     @Builder
-    public ChatRoom(Container containerId, String chatRoomName) {
-        this.container = containerId;
+    public ChatRoom(Container container, String chatRoomName) {
+        this.container = container;
         this.chatRoomName = chatRoomName;
     }
 

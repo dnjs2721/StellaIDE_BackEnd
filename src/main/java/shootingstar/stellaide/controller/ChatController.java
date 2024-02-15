@@ -1,5 +1,6 @@
 package shootingstar.stellaide.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,10 +8,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shootingstar.stellaide.entity.chat.ChatRoom;
+import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.repository.chatRoom.dto.FindAllChatMessageByRoomIdDTO;
 import shootingstar.stellaide.service.ChatService;
 import shootingstar.stellaide.service.dto.ChatRoomDTO;
 import shootingstar.stellaide.service.ChatService;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/chat")
@@ -32,15 +36,24 @@ public class ChatController {
      * 채팅방 생성
      * containerId 받아오기
      */
+
     @PostMapping("/createRoom")
-    public ChatRoom createRoom(@RequestParam String containerId){
-        return chatService.createRoom(containerId);
+    public ResponseEntity<String> createRoom(@Valid @RequestBody Container container){
+        chatService.createRoom(container);
+        return ResponseEntity.ok().body("채팅방 생성");
     }
+//    public ChatRoom createRoom(@RequestParam Container containerId){
+//        return chatService.createRoom(containerId);
+//    }
 
     @GetMapping("chatRoom")
-    public ChatRoomDTO chatRoom(@RequestParam Long roomId){
-        return chatService.findRoomById(roomId);
+    public ResponseEntity<ChatRoomDTO> chatRoom(@Valid @RequestBody ChatRoom chatRoom){
+        ChatRoomDTO chatRoomDTO = chatService.findRoomById(chatRoom.getChatRoomId());
+        return ResponseEntity.ok().body(chatRoomDTO);
     }
+//    public ChatRoomDTO chatRoom(@RequestParam ChatRoom chatroomId){
+//        return chatService.findRoomById(chatroomId.getChatRoomId());
+//    }
 
     @GetMapping("chatRoom/{roomId}")
     public ResponseEntity<?> getAllLisgtPage(@RequestParam("roomId") Long roomId,

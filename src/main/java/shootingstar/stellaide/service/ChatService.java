@@ -16,13 +16,13 @@ import shootingstar.stellaide.entity.chat.MessageType;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
 import shootingstar.stellaide.repository.chatRoom.dto.FindAllChatMessageByRoomIdDTO;
+import shootingstar.stellaide.repository.container.ContainerRepository;
 import shootingstar.stellaide.service.dto.ChatRoomDTO;
 import shootingstar.stellaide.service.dto.ChatRoomMessageDTO;
+import shootingstar.stellaide.entity.container.Container;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.swing.text.html.Option;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +33,7 @@ public class ChatService {
     private Map<Long, ChatRoomDTO> chatRoomsDTO;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMessageRepository chatMessageRepository;
+    private final ContainerRepository containerRepository;
     private Map<String, ChatRoomMessageDTO> chatRoomMessageDTO;
 
     @PostConstruct
@@ -47,11 +48,11 @@ public class ChatService {
         return chatRoomRepository.findAll();
     }
 
-    public ChatRoomDTO findRoomById(Long roomId) {
-        if(chatRoomsDTO.containsKey(roomId)){
-            return chatRoomsDTO.get(roomId);
+    public ChatRoomDTO findRoomById(Long chatRoomId) {
+        if(chatRoomsDTO.containsKey(chatRoomId)){
+            return chatRoomsDTO.get(chatRoomId);
         }
-        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(roomId);
+        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatRoomId);
         if(chatRoomOptional.isEmpty()){
             throw new RuntimeException();
         }
@@ -59,9 +60,9 @@ public class ChatService {
         ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
                 .roomId(chatRoom.getChatRoomId())
                 .name(chatRoom.getChatRoomName())
-                .containerId(chatRoom.getContainerId())
+                .containerId(chatRoom.getContainer().getContainerId())
                 .build();
-        chatRoomsDTO.put(roomId,chatRoomDTO);
+        chatRoomsDTO.put(chatRoomId,chatRoomDTO);
         return chatRoomDTO;
     }
 
@@ -71,10 +72,10 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatRoom createRoom(String containerId) {
+    public ChatRoom createRoom(Container container) {
         ChatRoom chatRoom = ChatRoom.builder()
                 .chatRoomName("전체 채팅방")
-                .containerId(containerId)
+                .container(container.getChatRoom().getContainer())
                 .build();
         chatRoomRepository.save(chatRoom);
 
