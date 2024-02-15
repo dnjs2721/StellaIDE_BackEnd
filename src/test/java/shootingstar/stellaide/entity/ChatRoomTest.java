@@ -1,22 +1,31 @@
 package shootingstar.stellaide.entity;
 
 import jakarta.transaction.Transactional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
+import shootingstar.stellaide.entity.chat.ChatRoom;
+import shootingstar.stellaide.entity.chat.ChatRoomMessage;
+import shootingstar.stellaide.entity.chat.MessageType;
+import shootingstar.stellaide.entity.container.Container;
+import shootingstar.stellaide.entity.container.ContainerType;
+import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
+import shootingstar.stellaide.repository.container.ContainerRepository;
+import shootingstar.stellaide.repository.user.UserRepository;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ChatRoomTest {
 
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ContainerRepository containerRepository;
     @Autowired
     private ChatRoomRepository chatRoomRepository;
     @Autowired
@@ -27,7 +36,13 @@ class ChatRoomTest {
     @Transactional
     public void createChatRoom() throws Exception {
         //given
-        ChatRoom newChat = new ChatRoom(1L, "채팅방1");
+        User user = new User("test@test.com", "test123", "test");
+        userRepository.save(user);
+
+        Container container = new Container(ContainerType.JAVA, "testContainer", "test", user);
+        containerRepository.save(container);
+
+        ChatRoom newChat = new ChatRoom(container, "채팅방1");
 
         //when
         chatRoomRepository.save(newChat);
@@ -46,8 +61,13 @@ class ChatRoomTest {
     @Transactional
     public void createChatRoomMessage() throws Exception {
         //given
-        ChatRoom newChat = new ChatRoom(1L, "채팅방1");
-        chatRoomRepository.save(newChat);
+        User user = new User("test@test.com", "test123", "test");
+        userRepository.save(user);
+
+        Container container = new Container(ContainerType.JAVA, "testContainer", "test", user);
+        containerRepository.save(container);
+
+        ChatRoom newChat = new ChatRoom(container, "채팅방1");
         chatRoomRepository.flush();
 
         Long chatRoomId = newChat.getChatRoomId();

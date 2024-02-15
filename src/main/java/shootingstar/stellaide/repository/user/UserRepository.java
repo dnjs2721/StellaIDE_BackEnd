@@ -2,7 +2,7 @@ package shootingstar.stellaide.repository.user;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import shootingstar.stellaide.entity.User;
+import shootingstar.stellaide.entity.user.User;
 
 import java.util.Optional;
 import java.util.UUID;

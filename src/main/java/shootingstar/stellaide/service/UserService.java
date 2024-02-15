@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import shootingstar.stellaide.controller.dto.user.ProfileResDto;
-import shootingstar.stellaide.entity.User;
+import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.user.UserRepository;
 import shootingstar.stellaide.security.jwt.JwtTokenProvider;

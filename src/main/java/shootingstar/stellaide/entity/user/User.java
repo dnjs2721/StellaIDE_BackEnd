@@ -1,4 +1,4 @@
-package shootingstar.stellaide.entity;
+package shootingstar.stellaide.entity.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -9,15 +9,16 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import shootingstar.stellaide.entity.BaseTimeTimeEntity;
+import shootingstar.stellaide.entity.container.Container;
+import shootingstar.stellaide.entity.SharedUserContainer;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User implements UserDetails {
+public class User extends BaseTimeTimeEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "BINARY(16)")
@@ -34,6 +35,12 @@ public class User implements UserDetails {
     private String nickname;
 
     private String profileImg;
+
+    @OneToMany(mappedBy = "owner")
+    private final List<Container> ownedContainers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sharedUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private final List<SharedUserContainer> sharedContainers = new ArrayList<>();
 
     public User(String email, String password, String nickname) {
         this.email = email;

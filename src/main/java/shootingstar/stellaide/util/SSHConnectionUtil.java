@@ -8,10 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import shootingstar.stellaide.entity.container.ContainerType;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.exception.ErrorCode;
 
 import java.io.InputStream;
+import java.util.Properties;
 
 import static shootingstar.stellaide.exception.ErrorCode.NOT_SUPPORT_IMG_TYPE;
 
@@ -28,11 +30,26 @@ public class SSHConnectionUtil {
     @Value("${storage.name}")
     private String username;
 
+    @Value("${storage.password}")
+    private String password;
+
     @Value("${storage.profileImgPath}")
     private String profileImgPath;
 
-    @Value("${storage.password}")
-    private String password;
+    @Value("${storage.containerPath}")
+    private String containerPath;
+
+    @Value("${storage.javaOriginPath}")
+    private String javaOriginPath;
+
+    @Value("${storage.pythonOriginPath}")
+    private String pythonOriginPath;
+
+    @Value("${storage.springOriginPath}")
+    private String springOriginPath;
+
+//    @Value("${storage.reactOriginPath}")
+//    private String reactOriginPath;
 
     public String listDirectory(String directory) {
         // `ls` 명령어 실행
@@ -63,7 +80,7 @@ public class SSHConnectionUtil {
             session = jsch.getSession(username, host, 22);
             session.setPassword(password);
 
-            java.util.Properties config = new java.util.Properties();
+            Properties config = new Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
 
@@ -92,6 +109,37 @@ public class SSHConnectionUtil {
         }
     }
 
+    public void createContainer(ContainerType type, String containerName) {
+        String command = null;
+        switch (type) {
+            case JAVA -> {
+                command = "cp -R " + javaOriginPath + " " + containerPath + containerName;
+                break;
+            }
+            case PYTHON -> {
+                command = "cp -R " + pythonOriginPath + " " + containerPath + containerName;
+                break;
+            }
+            case SPRING -> {
+                command = "cp -R " + springOriginPath + " " + containerPath + containerName;
+                break;
+            }
+//            case REACT -> {
+//                command = "cp -R " + reactOriginPath + " " + containerPath + containerName;
+//                break;
+//            }
+        }
+        if (command != null) {
+            executeCommand(command);
+        }
+    }
+
+    public void deleteContainer(String containerName) {
+        String filePath = containerPath + containerName;
+        String output = executeCommand("rm -rfv " + filePath);
+        log.info("deleteContainer output : {}", output);
+    }
+
     private String executeCommand(String command) {
         JSch jsch = new JSch();
         Session session = null;
@@ -103,7 +151,7 @@ public class SSHConnectionUtil {
             session = jsch.getSession(username, host, 22);
             session.setPassword(password);
 
-            java.util.Properties config = new java.util.Properties();
+            Properties config = new Properties();
             config.put("StrictHostKeyChecking", "no"); // 호스트 키 검증 생략
             session.setConfig(config);
 

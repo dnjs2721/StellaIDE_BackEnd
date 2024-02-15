@@ -1,9 +1,10 @@
-package shootingstar.stellaide.entity;
+package shootingstar.stellaide.entity.chat;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import shootingstar.stellaide.entity.container.Container;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +17,18 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatRoomId;
 
-    // 컨테이너 Id 외래키
-    private Long containerId;
-    private String name;
+    private String chatRoomName;
 
-    @OneToMany(mappedBy = "chatRoom")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "container_id")
+    private Container container;
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<ChatRoomMessage> messageList = new ArrayList<>();
 
-    public ChatRoom(Long containerId, String name) {
-        this.containerId = containerId;
-        this.name = name;
+    public ChatRoom(Container container, String name) {
+        this.container = container;
+        this.chatRoomName = name;
     }
 
     public void addChatMessage(ChatRoomMessage message) {
