@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import shootingstar.stellaide.entity.User;
+import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.user.UserRepository;
 import shootingstar.stellaide.security.jwt.JwtTokenProvider;
