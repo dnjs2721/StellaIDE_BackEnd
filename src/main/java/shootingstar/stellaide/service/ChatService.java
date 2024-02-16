@@ -73,8 +73,9 @@ public class ChatService {
 
     @Transactional
     public ChatRoom createRoom(Container container) {
+
         ChatRoom chatRoom = ChatRoom.builder()
-                .chatRoomName("전체 채팅방")
+                .chatRoomName(container.getName())
                 .container(container.getChatRoom().getContainer())
                 .build();
         chatRoomRepository.save(chatRoom);

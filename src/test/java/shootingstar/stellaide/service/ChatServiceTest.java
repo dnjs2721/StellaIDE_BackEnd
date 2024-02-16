@@ -7,14 +7,4 @@ import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
 
 public class ChatServiceTest {
 
-    private ChatRoomRepository chatRoomRepository;
-
-    @Test
-    @Transactional
-    public void createRoom() throws Exception{
-
-
-
-    }
-
 }
