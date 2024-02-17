@@ -57,19 +57,19 @@ public class ChatService {
             throw new RuntimeException();
         }
         ChatRoom chatRoom = chatRoomOptional.get();
-        // roomId =1 인경우 = 전체 체팅인경우
-        log.info(chatRoom.getChatRoomId().toString());
-        Long globalRoom = chatRoom.getChatRoomId();
-        if(globalRoom==99){
-            ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
-                .roomId(globalRoom)
-                .name("globalChat")
-                .containerId(null)
-                .build();
-            chatRoomsDTO.put(chatRoomId,chatRoomDTO);
-            return chatRoomDTO;
-        }
-        else {
+//        roomId =1 인경우 = 전체 체팅인경우
+//        log.info(chatRoom.getChatRoomId().toString());
+//        Long globalRoom = chatRoom.getChatRoomId();
+//        if(globalRoom==99){
+//            ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
+//                .roomId(globalRoom)
+//                .name("globalChat")
+//                .containerId(null)
+//                .build();
+//            chatRoomsDTO.put(chatRoomId,chatRoomDTO);
+//            return chatRoomDTO;
+//        }
+//        else {
             ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
                     .roomId(chatRoom.getChatRoomId())
                     .name(chatRoom.getChatRoomName())
@@ -77,7 +77,7 @@ public class ChatService {
                     .build();
             chatRoomsDTO.put(chatRoomId, chatRoomDTO);
             return chatRoomDTO;
-        }
+
     }
 
     public Page<FindAllChatMessageByRoomIdDTO> getAllMessagePage(Long roomId, Pageable pageable){

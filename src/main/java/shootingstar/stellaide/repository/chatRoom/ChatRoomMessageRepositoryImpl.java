@@ -30,7 +30,6 @@ public class ChatRoomMessageRepositoryImpl implements ChatRoomMessageRepositoryC
                         chatRoomMessage.messageType
                 ))
                 .from(chatRoomMessage)
-                //.leftJoin(chatRoom).on(chatRoom.roomId.eq(chatMessage.chatRoom.roomId))
                 .where(roomIdEq(roomId))
                 .orderBy()
                 .fetch();
@@ -48,7 +47,6 @@ public class ChatRoomMessageRepositoryImpl implements ChatRoomMessageRepositoryC
                         chatRoomMessage.messageType
                 ))
                 .from(chatRoomMessage)
-                //.leftJoin(chatRoom).on(chatRoom.roomId.eq(chatMessage.chatRoom.roomId))
                 .where(roomIdEq(roomId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

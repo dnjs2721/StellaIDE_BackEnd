@@ -41,19 +41,12 @@ public class ChatController {
         chatService.createRoom(container);
         return ResponseEntity.ok().body("채팅방 생성");
     }
-//    public ChatRoom createRoom(@RequestParam Container containerId){
-//        return chatService.createRoom(containerId);
-//    }
 
     @GetMapping("chatRoom")
     public ResponseEntity<ChatRoomDTO> chatRoom(@Valid @RequestBody ChatRoom chatRoom){
         ChatRoomDTO chatRoomDTO = chatService.findRoomById(chatRoom.getChatRoomId());
         return ResponseEntity.ok().body(chatRoomDTO);
     }
-//    public ChatRoomDTO chatRoom(@RequestParam ChatRoom chatroomId){
-//        return chatService.findRoomById(chatroomId.getChatRoomId());
-//    }
-
     @GetMapping("chatRoom/load")
     public ResponseEntity<?> getAllLisgtPage(@RequestParam("roomId") Long roomId,
                                              @PageableDefault(size =100) Pageable pageable){
