@@ -9,8 +9,8 @@ import org.springframework.web.socket.WebSocketHandler;
 
 @RequiredArgsConstructor
 @Configuration
-
-public class WebSockConfig implements WebSocketConfigurer {
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
     private final WebSocketHandler webSocketHandler;
 
     @Override

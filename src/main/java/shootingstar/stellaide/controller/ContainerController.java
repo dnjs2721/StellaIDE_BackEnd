@@ -13,6 +13,7 @@ import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.exception.ErrorCode;
 import shootingstar.stellaide.service.ContainerService;
 import shootingstar.stellaide.service.dto.ContainerTreeResDto;
+import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
 
 import java.util.List;
@@ -78,6 +79,13 @@ public class ContainerController {
     public ResponseEntity<String> executionFile(@RequestBody @Valid ExecutionFileReqDto reqDto) {
         containerService.executionFile(reqDto.getContainerId(), reqDto.getPath());
         return ResponseEntity.ok("");
+    }
+
+    @GetMapping("/getRoomId/{containerId}")
+    public ResponseEntity<GetRoomResDto> getRoomId(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        GetRoomResDto roomInfo = containerService.getRoomId(containerId, accessToken);
+        return ResponseEntity.ok().body(roomInfo);
     }
 
     @PostMapping("/execution/spring")

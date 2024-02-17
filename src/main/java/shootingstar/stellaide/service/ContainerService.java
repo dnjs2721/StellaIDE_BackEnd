@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import shootingstar.stellaide.controller.dto.container.FindContainerDto;
 import shootingstar.stellaide.service.dto.ContainerTreeResDto;
+import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
 import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.entity.container.Container;
@@ -105,6 +106,14 @@ public class ContainerService {
         } catch (RuntimeException e) {
             log.info("실행 실패");
         }
+    }
+
+    public GetRoomResDto getRoomId(String containerId, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+        Container container = findContainerByUUID(containerId);
+        return new GetRoomResDto(user.getNickname(), container.getChatRoom().getChatRoomId());
     }
 
     public SpringContainerResDto executionSpring(String containerId) {
