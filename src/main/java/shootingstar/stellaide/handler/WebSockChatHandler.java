@@ -11,6 +11,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
 import shootingstar.stellaide.service.ChatService;
 import shootingstar.stellaide.service.dto.ChatRoomDTO;
@@ -37,7 +38,7 @@ public class WebSockChatHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        System.out.println(session.getId());
+        log.info(session.getId());
     }
 
 
@@ -56,11 +57,7 @@ public class WebSockChatHandler extends TextWebSocketHandler {
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         } else {
             sendToEachSocket(sessions, message);
-//            System.out.println(chatMessageDTO.getMessage() +" "+ chatMessageDTO.getRoomId() +" " + room.getRoomId());
-            chatService.saveMessage(chatMessageDTO, room);
-
         }
-
     }
 
 

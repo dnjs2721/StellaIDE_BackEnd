@@ -60,7 +60,7 @@ public class ChatService {
         // roomId =1 인경우 = 전체 체팅인경우
         log.info(chatRoom.getChatRoomId().toString());
         Long globalRoom = chatRoom.getChatRoomId();
-        if(globalRoom==4){
+        if(globalRoom==99){
             ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
                 .roomId(globalRoom)
                 .name("globalChat")

@@ -36,7 +36,6 @@ public class ChatController {
      * 채팅방 생성
      * containerId 받아오기
      */
-//그대로 받아오지 말고 그안에서 필요한것만 받아
     @PostMapping("/createRoom")
     public ResponseEntity<String> createRoom(@Valid @RequestBody Container container){
         chatService.createRoom(container);
@@ -57,7 +56,7 @@ public class ChatController {
 
     @GetMapping("chatRoom/load")
     public ResponseEntity<?> getAllLisgtPage(@RequestParam("roomId") Long roomId,
-                                             @PageableDefault(size =10) Pageable pageable){
+                                             @PageableDefault(size =100) Pageable pageable){
 
         Page<FindAllChatMessageByRoomIdDTO> findAllChatMessageByRoomIdDTOPage = chatService.getAllMessagePage(roomId, pageable);
         return ResponseEntity.ok().body(findAllChatMessageByRoomIdDTOPage);
