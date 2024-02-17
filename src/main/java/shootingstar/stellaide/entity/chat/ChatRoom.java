@@ -2,6 +2,7 @@ package shootingstar.stellaide.entity.chat;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shootingstar.stellaide.entity.container.Container;
@@ -26,9 +27,10 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<ChatRoomMessage> messageList = new ArrayList<>();
 
-    public ChatRoom(Container container, String name) {
+    @Builder
+    public ChatRoom(Container container, String chatRoomName) {
         this.container = container;
-        this.chatRoomName = name;
+        this.chatRoomName = chatRoomName;
     }
 
     public void addChatMessage(ChatRoomMessage message) {
