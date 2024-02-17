@@ -1,6 +1,7 @@
 package shootingstar.stellaide.entity.chat;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,9 @@ public class ChatRoomMessage {
 
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
+    @NotBlank
     private String sender;
+    @NotBlank
     private String message;
     private LocalDateTime createTime;
 
