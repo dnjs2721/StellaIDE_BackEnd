@@ -49,20 +49,19 @@ public class WebSockChatHandler extends TextWebSocketHandler {
 
         //Set<WebSocketSession>
         sessions = room.getSessions();
-        TextMessage textMessage = new TextMessage(objectMapper.writeValueAsString(chatMessageDTO));
+
         if (chatMessageDTO.getType().equals(ChatRoomMessageDTO.MessageType.ENTER)) {
             sessions.add(session);
             chatMessageDTO.setMsg(chatMessageDTO.getSender() + "님이 입장했습니다.");
-            sendToEachSocket(sessions, textMessage);
-        }
-        else if (chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.CONTAINER)){
-            sendToEachSocket(sessions, textMessage);
-        }
-            else {
-            sendToEachSocket(sessions, message);
+            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
             chatService.saveMessage(chatMessageDTO,room);
         }
-        chatService.saveMessage(chatMessageDTO, room);
+        else if (chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.GLOBAL)) {
+            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
+        }
+        else{
+            chatService.saveMessage(chatMessageDTO,room);
+        }
     }
 
 

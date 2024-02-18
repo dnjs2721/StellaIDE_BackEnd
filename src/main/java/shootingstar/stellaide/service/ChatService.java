@@ -14,14 +14,12 @@ import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.entity.chat.ChatRoomMessage;
 import shootingstar.stellaide.entity.chat.GlobalChatRoom;
 import shootingstar.stellaide.entity.chat.MessageType;
-import shootingstar.stellaide.repository.GlobalChatRoomRepository;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
+import shootingstar.stellaide.repository.chatRoom.GlobalChatRoomRepository;
 import shootingstar.stellaide.repository.chatRoom.dto.FindAllChatMessageByRoomIdDTO;
-import shootingstar.stellaide.repository.container.ContainerRepository;
 import shootingstar.stellaide.service.dto.ChatRoomDTO;
 import shootingstar.stellaide.service.dto.ChatRoomMessageDTO;
-import shootingstar.stellaide.entity.container.Container;
 
 import java.util.*;
 
@@ -50,20 +48,32 @@ public class ChatService {
     }
 
     public ChatRoomDTO findRoomById(Long chatRoomId) {
-        if(chatRoomsDTO.containsKey(chatRoomId)){
-            return chatRoomsDTO.get(chatRoomId);
-        }
-        Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatRoomId);
-        if(chatRoomOptional.isEmpty()){
-            throw new RuntimeException();
-        }
-        ChatRoom chatRoom = chatRoomOptional.get();
+        log.info("message : {}",chatRoomId.toString());
+        if(chatRoomId == 999L){
             ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
-                    .roomId(chatRoom.getChatRoomId())
-                    .name(chatRoom.getChatRoomName())
+                    .roomId(999L)
+                    .name("globalChat")
                     .build();
-            chatRoomsDTO.put(chatRoomId, chatRoomDTO);
+            chatRoomsDTO.put(chatRoomId,chatRoomDTO);
             return chatRoomDTO;
+        }
+        else {
+            if (chatRoomsDTO.containsKey(chatRoomId)) {
+                return chatRoomsDTO.get(chatRoomId);
+            }
+            Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findById(chatRoomId);
+            if (chatRoomOptional.isEmpty()) {
+                throw new RuntimeException();
+            } else {
+                ChatRoom chatRoom = chatRoomOptional.get();
+                ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
+                        .roomId(chatRoom.getChatRoomId())
+                        .name(chatRoom.getChatRoomName())
+                        .build();
+                chatRoomsDTO.put(chatRoomId, chatRoomDTO);
+                return chatRoomDTO;
+            }
+        }
 
     }
 
@@ -71,6 +81,7 @@ public class ChatService {
 //        log.info(chatMessageRepository.findAllMessageById(roomId, pageable).toString());
         return chatMessageRepository.findAllMessageById(roomId, pageable);
     }
+
     @Transactional
     public GlobalChatRoom createRoom(Long roomId) {
             GlobalChatRoom globalChatRoom = new GlobalChatRoom(999L);
