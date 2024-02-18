@@ -28,8 +28,6 @@ import java.util.Set;
 public class WebSockChatHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final ChatService chatService;
-
-    @Autowired
     private final ChatRoomMessageRepository chatRoomMessageRepository;
     private Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<WebSocketSession>());
 
@@ -58,6 +56,7 @@ public class WebSockChatHandler extends TextWebSocketHandler {
         } else {
             sendToEachSocket(sessions, message);
         }
+        chatService.saveMessage(chatMessageDTO, room);
     }
 
 

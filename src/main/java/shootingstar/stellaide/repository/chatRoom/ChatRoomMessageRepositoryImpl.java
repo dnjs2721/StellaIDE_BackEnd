@@ -50,6 +50,7 @@ public class ChatRoomMessageRepositoryImpl implements ChatRoomMessageRepositoryC
                 .where(roomIdEq(roomId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(chatRoomMessage.messageId.asc())
                 .fetch();
 
         JPAQuery<Long> countQuery = queryFactory

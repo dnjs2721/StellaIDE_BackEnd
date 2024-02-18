@@ -1,4 +1,4 @@
-package shootingstar.stellaide.controller.dto.user;
+package shootingstar.stellaide.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

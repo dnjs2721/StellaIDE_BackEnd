@@ -33,6 +33,9 @@ public class SSHConnectionUtil {
     @Value("${storage.password}")
     private String password;
 
+    @Value("${storage.homePath}")
+    private String homePath;
+
     @Value("${storage.profileImgPath}")
     private String profileImgPath;
 
@@ -135,9 +138,74 @@ public class SSHConnectionUtil {
     }
 
     public void deleteContainer(String containerName) {
-        String filePath = containerPath + containerName;
-        String output = executeCommand("rm -rfv " + filePath);
+        String remotePath = containerPath + containerName;
+        String output = executeCommand("rm -rfv " + remotePath);
         log.info("deleteContainer output : {}", output);
+    }
+
+    public String getContainerTree(String containerName) {
+        String remotePath = containerPath + containerName;
+        String command = "cd " + remotePath + " && " + "tree -a -f -p";
+        log.info(command);
+        return executeCommand(command);
+    }
+
+    public String getFileContent(String containerName, String filePath) {
+        String remotePath = containerPath + containerName + "/" + filePath;
+        String command = "cat " + remotePath;
+        log.info(command);
+        return executeCommand(command);
+    }
+
+    public void createFile(String filePath) {
+        String remotePath = containerPath + filePath;
+        String command = "touch " + remotePath;
+        executeCommand(command);
+    }
+
+    public void createDirectory(String directoryPath) {
+        String remotePath = containerPath + directoryPath;
+        String command = "mkdir " + remotePath;
+        executeCommand(command);
+    }
+
+    public void executionFile(String containerName, String filePath, ContainerType type) {
+        String remotePath = containerPath + containerName;
+        String command = null;
+        switch (type) {
+            case JAVA -> {
+                command = "shopt -s globstar && "
+                        + "javac -encoding UTF-8 -d " + remotePath + "/bin " + remotePath + "/src/**/*.java && "
+                        + "java -Dfile.encoding=UTF-8 -cp " + remotePath + "/bin " + filePath;
+                log.info(command);
+                break;
+            }
+            case PYTHON -> {
+                command = "python3 " + remotePath + "/" + filePath;
+                log.info(command);
+                break;
+            }
+        }
+        String output = executeCommand(command);
+        log.info(output);
+    }
+
+    public String executionSpring(String containerName) {
+        String remotePath = containerPath + containerName;
+        String command = homePath + "start_spring.sh " + remotePath;
+        log.info(command);
+        String output = executeCommand(command);
+        log.info(output);
+
+        return baseUrl + "/logs/" + containerName + "/nohub.out";
+    }
+
+    public void stopSpringContainer(String containerName) {
+        String remotePath = containerPath + containerName;
+        String command = homePath + "stop_spring.sh " + remotePath;
+        log.info(command);
+        String output = executeCommand(command);
+        log.info(output);
     }
 
     private String executeCommand(String command) {
@@ -145,6 +213,8 @@ public class SSHConnectionUtil {
         Session session = null;
         ChannelExec channel = null;
         String output = "";
+        String error = "";
+        int existStatus = 0;
 
         try {
             // 세션 설정
@@ -164,6 +234,9 @@ public class SSHConnectionUtil {
 
             // 명령 실행 결과 읽기
             InputStream in = channel.getInputStream();
+            // 명령 실행 에러(표준 에러) 읽기
+            InputStream err = channel.getErrStream();
+
             channel.connect();
 
             byte[] tmp = new byte[1024];
@@ -173,9 +246,18 @@ public class SSHConnectionUtil {
                     if (i < 0) break;
                     output += new String(tmp, 0, i);
                 }
+                while (err.available() > 0) {
+                    int i = err.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    error += new String(tmp, 0, i); // 에러 메시지도 output에 추가
+                }
                 if (channel.isClosed()) {
                     if (in.available() > 0) continue;
-                    log.info("exit-status: {} ", channel.getExitStatus());
+                    if (channel.getExitStatus() != 0) {
+                        existStatus = channel.getExitStatus();
+                        log.info("exit-status: {} ", channel.getExitStatus());
+                        log.info(error);
+                    }
                     break;
                 }
                 Thread.sleep(1000);
@@ -188,6 +270,9 @@ public class SSHConnectionUtil {
             if (session != null) session.disconnect();
         }
 
+        if (existStatus != 0) {
+            throw new RuntimeException();
+        }
         return output;
     }
 }

@@ -81,7 +81,7 @@ public class ChatService {
     }
 
     public Page<FindAllChatMessageByRoomIdDTO> getAllMessagePage(Long roomId, Pageable pageable){
-        log.info(chatMessageRepository.findAllMessageById(roomId, pageable).toString());
+//        log.info(chatMessageRepository.findAllMessageById(roomId, pageable).toString());
         return chatMessageRepository.findAllMessageById(roomId, pageable);
     }
 
@@ -112,6 +112,7 @@ public class ChatService {
         chatMessageRepository.save(chatMessage);
         return chatMessage;
     }
+
     public String convertJSON(Object object) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         return objectMapper.writeValueAsString(object);
