@@ -15,17 +15,24 @@ public class ChatRoomMessageDTO {
     @NotNull
     private MessageType type; // 메시지 타입
 
+    private RoomType roomType;
+
+    public enum RoomType{
+        GLOBAL, CONTAINER
+    }
+
     public enum MessageType {
         ENTER, TALK
         //,QUIT
     }
 
     //    private ChatRoomDTO chatRoomDTO;
-    public ChatRoomMessageDTO(MessageType type, Long roomId, String sender, String msg){
+    public ChatRoomMessageDTO(MessageType type, Long roomId, String sender, String msg,RoomType roomType){
         this.type = type;
         this.roomId = roomId;
         this.sender = sender;
         this.msg = msg;
+        this.roomType = roomType;
 
     }
 }

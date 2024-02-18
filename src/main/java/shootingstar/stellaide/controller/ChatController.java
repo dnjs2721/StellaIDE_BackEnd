@@ -8,6 +8,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shootingstar.stellaide.entity.chat.ChatRoom;
+import shootingstar.stellaide.entity.chat.GlobalChatRoom;
 import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.repository.chatRoom.dto.FindAllChatMessageByRoomIdDTO;
 import shootingstar.stellaide.service.ChatService;
@@ -37,14 +38,19 @@ public class ChatController {
      * containerId 받아오기
      */
     @PostMapping("/createRoom")
-    public ResponseEntity<String> createRoom(@Valid @RequestBody Container container){
-        chatService.createRoom(container);
+    public ResponseEntity<String> createRoom(@RequestParam("roomId") Long roomId){
+        chatService.createRoom(roomId);
         return ResponseEntity.ok().body("채팅방 생성");
     }
-
     @GetMapping("/chatRoom")
     public ResponseEntity<ChatRoomDTO> chatRoom(@Valid @RequestBody ChatRoom chatRoom){
         ChatRoomDTO chatRoomDTO = chatService.findRoomById(chatRoom.getChatRoomId());
+        return ResponseEntity.ok().body(chatRoomDTO);
+    }
+
+    @GetMapping("/globalChatRoom")
+    public ResponseEntity<ChatRoomDTO> globalChatRoom(GlobalChatRoom globalChatRoom){
+        ChatRoomDTO chatRoomDTO = chatService.findRoomById(globalChatRoom.getGlobalChatRoomId());
         return ResponseEntity.ok().body(chatRoomDTO);
     }
 

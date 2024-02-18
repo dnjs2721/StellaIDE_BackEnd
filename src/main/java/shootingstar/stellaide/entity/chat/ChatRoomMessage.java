@@ -27,6 +27,7 @@ public class ChatRoomMessage {
     private String message;
     private LocalDateTime createTime;
 
+
     public ChatRoomMessage(ChatRoom chatRoom, MessageType messageType, String sender, String message) {
         this.chatRoom = chatRoom;
         this.messageType = messageType;

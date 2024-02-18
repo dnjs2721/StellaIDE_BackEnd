@@ -62,5 +62,6 @@ public class ChatRoomMessageRepositoryImpl implements ChatRoomMessageRepositoryC
 
     private BooleanExpression roomIdEq(Long roomId){
         return roomId !=null ? chatRoomMessage.chatRoom.chatRoomId.eq(roomId) : null;
+//        return roomId !=null ? chatRoomMessage.chatRoom.chatRoomId.eq(roomId) : null;
     }
 }

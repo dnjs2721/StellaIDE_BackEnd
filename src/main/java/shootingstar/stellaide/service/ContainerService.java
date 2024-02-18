@@ -3,6 +3,7 @@ package shootingstar.stellaide.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import shootingstar.stellaide.controller.dto.container.FindContainerDto;
@@ -10,14 +11,11 @@ import shootingstar.stellaide.service.dto.ContainerTreeResDto;
 import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
 import shootingstar.stellaide.entity.chat.ChatRoom;
-import shootingstar.stellaide.entity.chat.ChatRoomType;
-import shootingstar.stellaide.entity.chat.RoomType;
 import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.entity.container.ContainerType;
 import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
-import shootingstar.stellaide.repository.chatRoom.ChatRoomTypeRepository;
 import shootingstar.stellaide.repository.container.ContainerRepository;
 import shootingstar.stellaide.repository.user.UserRepository;
 import shootingstar.stellaide.security.jwt.JwtTokenProvider;
@@ -35,9 +33,9 @@ public class ContainerService {
     private final ContainerRepository containerRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    @Autowired
     private final SSHConnectionUtil sshConnectionUtil;
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatRoomTypeRepository chatRoomTypeRepository;
 
     public List<FindContainerDto> getContainer(String group, String query, String align) {
         return containerRepository.findContainer(group, query, align);
@@ -65,9 +63,7 @@ public class ContainerService {
         Container container = new Container(type, containerName, description, user);
         containerRepository.save(container);
 
-        ChatRoomType chatRoomType = new ChatRoomType(RoomType.CONTAINER);
-        chatRoomTypeRepository.save(chatRoomType);
-        ChatRoom chatRoom = new ChatRoom(container, name + " Chat");
+        ChatRoom chatRoom = new ChatRoom(container, name+"Chat");
         chatRoomRepository.save(chatRoom);
     }
 

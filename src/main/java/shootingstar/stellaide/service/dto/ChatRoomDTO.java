@@ -12,13 +12,11 @@ import java.util.UUID;
 public class ChatRoomDTO {
     private Long roomId; //채팅방 아이디
     private String name; //채팅방 이름
-    private UUID containerId; //컨테이너 아이디
     private Set<WebSocketSession> sessions = new HashSet<>();
     @Builder
-    public ChatRoomDTO(String name, Long roomId,UUID containerId) {
+    public ChatRoomDTO(String name, Long roomId) {
         this.roomId = roomId;
         this.name = name;
-        this.containerId = containerId;
     }
 }
 
