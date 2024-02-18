@@ -17,7 +17,7 @@ import shootingstar.stellaide.service.ChatService;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/chat")
+@RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
@@ -42,13 +42,14 @@ public class ChatController {
         return ResponseEntity.ok().body("채팅방 생성");
     }
 
-    @GetMapping("chatRoom")
+    @GetMapping("/chatRoom")
     public ResponseEntity<ChatRoomDTO> chatRoom(@Valid @RequestBody ChatRoom chatRoom){
         ChatRoomDTO chatRoomDTO = chatService.findRoomById(chatRoom.getChatRoomId());
         return ResponseEntity.ok().body(chatRoomDTO);
     }
-    @GetMapping("chatRoom/load")
-    public ResponseEntity<?> getAllLisgtPage(@RequestParam("roomId") Long roomId,
+
+    @GetMapping("/container/loadHistory")
+    public ResponseEntity<?> getAllListPage(@RequestParam("roomId") Long roomId,
                                              @PageableDefault(size =100) Pageable pageable){
 
         Page<FindAllChatMessageByRoomIdDTO> findAllChatMessageByRoomIdDTOPage = chatService.getAllMessagePage(roomId, pageable);
