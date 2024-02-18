@@ -9,16 +9,16 @@ import java.time.LocalDateTime;
 @Data
 public class FindAllChatMessageByRoomIdDTO {
     private String sender;
-    private String message;
+    private String msg;
     private MessageType type;
     private LocalDateTime createTime ;
     private Long roomId;
 
     @QueryProjection
-    public FindAllChatMessageByRoomIdDTO(Long roomId, String sender, String message, LocalDateTime createTime, MessageType type){
+    public FindAllChatMessageByRoomIdDTO(Long roomId, String sender, String msg, LocalDateTime createTime, MessageType type){
         this.roomId = roomId;
         this.sender = sender;
-        this.message = message;
+        this.msg = msg;
         this.type = type;
         this.createTime = createTime;
     }

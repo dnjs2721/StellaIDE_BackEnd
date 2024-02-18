@@ -12,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import shootingstar.stellaide.entity.chat.ChatRoom;
+import shootingstar.stellaide.entity.chat.ChatRoomMessage;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
 import shootingstar.stellaide.service.ChatService;
 import shootingstar.stellaide.service.dto.ChatRoomDTO;
@@ -57,6 +58,7 @@ public class WebSockChatHandler extends TextWebSocketHandler {
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         } else {
             sendToEachSocket(sessions, message);
+            chatService.saveMessage(chatMessageDTO,room);
         }
     }
 

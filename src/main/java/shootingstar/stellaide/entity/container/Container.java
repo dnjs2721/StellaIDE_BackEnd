@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import shootingstar.stellaide.entity.BaseTimeTimeEntity;
 import shootingstar.stellaide.entity.SharedUserContainer;
 import shootingstar.stellaide.entity.chat.ChatRoom;
+import shootingstar.stellaide.entity.chat.ChatRoomType;
 import shootingstar.stellaide.entity.user.User;
 
 import java.util.ArrayList;
@@ -44,6 +45,9 @@ public class Container extends BaseTimeTimeEntity {
 
     @OneToOne(mappedBy = "container", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private ChatRoom chatRoom;
+
+    @OneToOne(mappedBy = "container", cascade =  CascadeType.REMOVE)
+    private ChatRoomType chatRoomType;
 
     public Container(ContainerType type, String name, String description, User owner) {
         this.type = type;

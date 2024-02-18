@@ -15,8 +15,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoom {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatRoomId;
+    @OneToOne(mappedBy = "chatRoom")
+    private ChatRoomType chatRoomType;
 
     private String chatRoomName;
 
