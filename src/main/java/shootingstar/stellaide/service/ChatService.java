@@ -48,7 +48,30 @@ public class ChatService {
         return dmChatRoomRepository.findAll();
     }
 
+    /**
+     * 글로벌 채팅 찾기
+     * @param chatRoomId
+     * @return
+     */
     public ChatRoomDTO findRoomById(Long chatRoomId) {
+        if(chatRoomId==999L) {
+            if (chatRoomsDTO.containsKey(chatRoomId)) {
+                return chatRoomsDTO.get(chatRoomId);
+            }
+            Optional<GlobalChatRoom> globalChatRoomOptional = globalChatRoomRepository.findById(chatRoomId);
+            if (globalChatRoomOptional.isEmpty()) {
+                throw new RuntimeException();
+            } else {
+                GlobalChatRoom globalChatRoom = globalChatRoomOptional.get();
+                ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
+                        .roomId(globalChatRoom.getGlobalChatRoomId())
+                        .name("globalChatRoom")
+                        .build();
+                chatRoomsDTO.put(chatRoomId, chatRoomDTO);
+                return chatRoomDTO;
+            }
+        }
+        else{
             if (chatRoomsDTO.containsKey(chatRoomId)) {
                 return chatRoomsDTO.get(chatRoomId);
             }
@@ -64,8 +87,14 @@ public class ChatService {
                 chatRoomsDTO.put(chatRoomId, chatRoomDTO);
                 return chatRoomDTO;
             }
+        }
     }
 
+    /**
+     * 디엠 채팅방 찾기
+     * @param dmChatRoomId
+     * @return
+     */
     public ChatRoomDTO findDMRoomById(Long dmChatRoomId) {
         if (chatRoomsDTO.containsKey(dmChatRoomId)) {
             return chatRoomsDTO.get(dmChatRoomId);

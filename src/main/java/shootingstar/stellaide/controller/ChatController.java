@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import shootingstar.stellaide.entity.chat.ChatRoom;
@@ -29,10 +31,11 @@ public class ChatController {
     /**
      * 채팅방 목록 나열
      */
-     @RequestMapping("chat/chatList")
-     public ResponseEntity<List<DMChatRoom>> chatList(){
-     List<DMChatRoom> roomList = chatService.findAllRoom();
-     return ResponseEntity.ok().body(roomList);
+     @GetMapping("/chatList")
+     public ResponseEntity<DMChatRoom> chatList(){
+         log.info("api :{}",chatList());
+         List<DMChatRoom> roomList = chatService.findAllRoom();
+         return ResponseEntity.ok((DMChatRoom) roomList);
      }
 
 
@@ -40,14 +43,19 @@ public class ChatController {
      * DM 채팅방 생성
      */
     @PostMapping("/createDMRoom")
-    public ResponseEntity<String> createRoom(@RequestParam("sendId") UUID sendId, @RequestParam("reciveId") UUID receivdId){
+    public ResponseEntity<String> createRoom(@RequestParam("sendId") UUID sendId, @RequestParam("receivdId") UUID receivdId){
         chatService.createDMRoom(sendId, receivdId);
         return ResponseEntity.ok().body("채팅방 생성");
     }
 
+    /**
+     *
+     * @param
+     * @return
+     */
     @GetMapping("/dmChatRoom")
-    public ResponseEntity<ChatRoomDTO> dmChatRoom(@Valid @RequestBody DMChatRoom dmChatRoom){
-        ChatRoomDTO chatRoomDTO = chatService.findDMRoomById(dmChatRoom.getDmChatRoomId());
+    public ResponseEntity<ChatRoomDTO> dmChatRoom(@RequestParam("chatRoomId") Long dmChatRoomId){
+        ChatRoomDTO chatRoomDTO = chatService.findDMRoomById(dmChatRoomId);
         return ResponseEntity.ok().body(chatRoomDTO);
     }
 

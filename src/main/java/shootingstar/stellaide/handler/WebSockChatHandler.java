@@ -47,23 +47,23 @@ public class WebSockChatHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ChatRoomMessageDTO chatMessageDTO = objectMapper.readValue(payload, ChatRoomMessageDTO.class);
         ChatRoomDTO room = chatService.findRoomById(chatMessageDTO.getRoomId());
-
+        System.out.println(chatMessageDTO.toString());
         //Set<WebSocketSession>
         sessions = room.getSessions();
-
         if (chatMessageDTO.getType().equals(ChatRoomMessageDTO.MessageType.ENTER)) {
             sessions.add(session);
             chatMessageDTO.setMsg(chatMessageDTO.getSender() + "님이 입장했습니다.");
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
             chatService.saveContainerMessage(chatMessageDTO,room);
+
         }
         else if (chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.GLOBAL)) {
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         }
-        else if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.DM)){
-            chatService.saveDMMessage(chatMessageDTO, room);
-            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-        }
+//        else if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.DM)){
+//            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
+//            chatService.saveDMMessage(chatMessageDTO, room);
+//        }
         else{
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
             chatService.saveContainerMessage(chatMessageDTO,room);
