@@ -18,7 +18,7 @@ public class ChatRoomMessageDTO {
     private RoomType roomType;
 
     public enum RoomType{
-        GLOBAL, CONTAINER
+        GLOBAL, CONTAINER, DM
     }
 
     public enum MessageType {

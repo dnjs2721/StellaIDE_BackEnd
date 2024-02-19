@@ -11,6 +11,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.w3c.dom.Text;
 import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.entity.chat.ChatRoomMessage;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
@@ -54,14 +55,18 @@ public class WebSockChatHandler extends TextWebSocketHandler {
             sessions.add(session);
             chatMessageDTO.setMsg(chatMessageDTO.getSender() + "님이 입장했습니다.");
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-            chatService.saveMessage(chatMessageDTO,room);
+            chatService.saveContainerMessage(chatMessageDTO,room);
         }
         else if (chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.GLOBAL)) {
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         }
+        else if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.DM)){
+            chatService.saveDMMessage(chatMessageDTO, room);
+            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
+        }
         else{
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-            chatService.saveMessage(chatMessageDTO,room);
+            chatService.saveContainerMessage(chatMessageDTO,room);
         }
     }
 
