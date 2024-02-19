@@ -55,8 +55,8 @@ public class WebSockChatHandler extends TextWebSocketHandler {
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         } else {
             sendToEachSocket(sessions, message);
+            chatService.saveMessage(chatMessageDTO, room);
         }
-        chatService.saveMessage(chatMessageDTO, room);
     }
 
 
@@ -70,11 +70,10 @@ public class WebSockChatHandler extends TextWebSocketHandler {
         });
     }
 
-
-
     //세션 끊을 때
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        log.info("session Close : {}", session);
         sessions.remove(session);
     }
 

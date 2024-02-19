@@ -37,8 +37,10 @@ public class UserService {
         if (findUser.getProfileImg() != null) {
              profileImgUrl = sshConnectionUtil.getProfileImgUrl(findUser.getProfileImg());
         }
+        int ownedContainerCount = findUser.getOwnedContainers().size();
+        int sharedContainerCount = findUser.getSharedContainers().size();
 
-        return new ProfileResDto(findUser.getEmail(), findUser.getNickname(), profileImgUrl);
+        return new ProfileResDto(findUser.getEmail(), findUser.getNickname(), profileImgUrl, ownedContainerCount, sharedContainerCount);
     }
 
     @Transactional
