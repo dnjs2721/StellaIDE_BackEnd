@@ -56,4 +56,8 @@ public class Container extends BaseTimeTimeEntity {
     public void addSharedUser(SharedUserContainer userContainer) {
         this.sharedUsers.add(userContainer);
     }
+
+    public void changeDescription(String description) {
+        this.description = description;
+    }
 }

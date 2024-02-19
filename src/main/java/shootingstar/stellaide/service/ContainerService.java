@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import shootingstar.stellaide.controller.dto.container.FindContainerDto;
+import shootingstar.stellaide.controller.dto.container.AllContainerDto;
+import shootingstar.stellaide.controller.dto.container.EditContainerReqDto;
 import shootingstar.stellaide.service.dto.ContainerTreeResDto;
 import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
+import shootingstar.stellaide.entity.SharedUserContainer;
 import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.entity.container.ContainerType;
@@ -17,6 +19,7 @@ import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
 import shootingstar.stellaide.repository.container.ContainerRepository;
+import shootingstar.stellaide.repository.sharedUserContainer.SharedUserContainerRepository;
 import shootingstar.stellaide.repository.user.UserRepository;
 import shootingstar.stellaide.security.jwt.JwtTokenProvider;
 import shootingstar.stellaide.util.SSHConnectionUtil;
@@ -36,9 +39,17 @@ public class ContainerService {
     @Autowired
     private final SSHConnectionUtil sshConnectionUtil;
     private final ChatRoomRepository chatRoomRepository;
+    private final SharedUserContainerRepository sharedUserContainerRepository;
 
-    public List<FindContainerDto> getContainer(String group, String query, String align) {
-        return containerRepository.findContainer(group, query, align);
+    private final CheckDuplicateService duplicateService;
+
+    public AllContainerDto getContainer(String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+
+        User user = findUserByUUID(userUuid);
+
+        return containerRepository.findContainer(user.getUserId());
     }
 
     @Transactional
@@ -52,12 +63,9 @@ public class ContainerService {
             throw new RuntimeException("최대 5개 까지만 생성가능");
         }
 
-        // name 검증 로직 추가해야 함
-
         String containerName = user.getNickname() + "_" + name;
-        if (containerRepository.existsByName(containerName)) {
-            throw new RuntimeException("동일한 컨테이너 이름 존재");
-        }
+        duplicateService.checkDuplicateContainerName(containerName); // 컨테이너 이름 검사
+
         sshConnectionUtil.createContainer(type, containerName);
 
         Container container = new Container(type, containerName, description, user);
@@ -68,11 +76,62 @@ public class ContainerService {
     }
 
     @Transactional
-    public void deleteContainer(String containerId) {
+    public void editContainer(String containerId, String description, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         Container container = findContainerByUUID(containerId);
 
-        sshConnectionUtil.deleteContainer(container.getName());
-        containerRepository.delete(container);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        container.changeDescription(description);
+    }
+
+    @Transactional
+    public void deleteContainer(String containerId, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        Container container = findContainerByUUID(containerId);
+
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        /** 소유주가 아닌 사람이 삭제 요청시 예외처리 필요 */
+        if (user.getUserId() == container.getOwner().getUserId()) {
+            containerRepository.delete(container);
+            sshConnectionUtil.deleteContainer(container.getName());
+        }
+
+    }
+
+    @Transactional
+    public void shareContainer(String containerId, String userNickname, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        Container container = findContainerByUUID(containerId);
+
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        /** 소유주만 가능 */
+
+        User member = userRepository.findByNickname(userNickname); /** 존재하지 않는 유저일 경우 예외처리, 공유 인원 제한 */
+
+        SharedUserContainer sharedUserContainer = new SharedUserContainer(container, member);
+        sharedUserContainerRepository.save(sharedUserContainer);
+    }
+
+    @Transactional
+    public void unshareContainer(String containerId, String userNickname, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        Container container = findContainerByUUID(containerId);
+
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        /** 소유주만 가능 */
+
+        User member = userRepository.findByNickname(userNickname); /** 존재하지 않는 유저일 경우 예외처리 */
+
+        SharedUserContainer sharedUserContainer = sharedUserContainerRepository.findByContainerAndSharedUser(container, member);
+        sharedUserContainerRepository.delete(sharedUserContainer);
     }
 
     public ContainerTreeResDto getTreeInfo(String containerId) {
