@@ -5,14 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.w3c.dom.Text;
-import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.entity.chat.ChatRoomMessage;
 import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
 import shootingstar.stellaide.service.ChatService;
@@ -27,7 +24,7 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class WebSockChatHandler extends TextWebSocketHandler {
+public class WebSocketChatHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final ChatService chatService;
     private final ChatRoomMessageRepository chatRoomMessageRepository;
@@ -46,30 +43,31 @@ public class WebSockChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
         ChatRoomMessageDTO chatMessageDTO = objectMapper.readValue(payload, ChatRoomMessageDTO.class);
-        ChatRoomDTO room = chatService.findRoomById(chatMessageDTO.getRoomId());
-        System.out.println(chatMessageDTO.toString());
-        //Set<WebSocketSession>
-        sessions = room.getSessions();
-        if (chatMessageDTO.getType().equals(ChatRoomMessageDTO.MessageType.ENTER)) {
-            sessions.add(session);
-            chatMessageDTO.setMsg(chatMessageDTO.getSender() + "님이 입장했습니다.");
+        //DM chat
+        if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.DM)){
+            ChatRoomDTO room = chatService.findDMRoomById(chatMessageDTO.getRoomId());
+            sessions = room.getSessions();
+            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
+            chatService.saveDMMessage(chatMessageDTO,room);
+        }
+        //Container chat
+        else if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.CONTAINER)){
+            ChatRoomDTO room = chatService.findRoomById(chatMessageDTO.getRoomId());
+            sessions = room.getSessions();
+            if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.MessageType.ENTER)){
+                sessions.add(session);
+                chatMessageDTO.setMsg(chatMessageDTO.getSender() + "님이 입장했습니다.");
+            }
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
             chatService.saveContainerMessage(chatMessageDTO,room);
-
         }
-        else if (chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.GLOBAL)) {
-            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-        }
-//        else if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.DM)){
-//            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-//            chatService.saveDMMessage(chatMessageDTO, room);
-//        }
+        //Global chat
         else{
-            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-            chatService.saveContainerMessage(chatMessageDTO,room);
+            ChatRoomDTO room = chatService.findRoomById(chatMessageDTO.getRoomId());
+            sessions = room.getSessions();
+            sendToEachSocket(sessions,new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         }
     }
-
 
     private  void sendToEachSocket(Set<WebSocketSession> sessions, TextMessage message){
         sessions.parallelStream().forEach( roomSession -> {

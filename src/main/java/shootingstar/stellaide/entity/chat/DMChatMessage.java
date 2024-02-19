@@ -23,8 +23,11 @@ public class DMChatMessage {
 
     @NotBlank
     private String sender;
+
     @NotBlank
+    @Column(columnDefinition="LONGTEXT")
     private String message;
+
     private LocalDateTime createTime;
 
 

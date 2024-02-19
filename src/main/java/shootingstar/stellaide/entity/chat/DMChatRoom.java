@@ -20,7 +20,6 @@ public class DMChatRoom {
     private Long dmChatRoomId;
 
     private UUID sendId;
-
     private UUID reciveId;
 
     public DMChatRoom(UUID sendId, UUID reciveId){
