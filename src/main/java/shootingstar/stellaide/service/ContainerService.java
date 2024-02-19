@@ -3,6 +3,7 @@ package shootingstar.stellaide.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import shootingstar.stellaide.controller.dto.container.AllContainerDto;
@@ -35,6 +36,7 @@ public class ContainerService {
     private final ContainerRepository containerRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    @Autowired
     private final SSHConnectionUtil sshConnectionUtil;
     private final ChatRoomRepository chatRoomRepository;
     private final SharedUserContainerRepository sharedUserContainerRepository;
@@ -69,7 +71,7 @@ public class ContainerService {
         Container container = new Container(type, containerName, description, user);
         containerRepository.save(container);
 
-        ChatRoom chatRoom = new ChatRoom(container, name + " Chat");
+        ChatRoom chatRoom = new ChatRoom(container, name+"Chat");
         chatRoomRepository.save(chatRoom);
     }
 
