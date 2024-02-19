@@ -5,15 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import shootingstar.stellaide.controller.dto.container.FindContainerDto;
+import shootingstar.stellaide.controller.dto.container.AllContainerDto;
+import shootingstar.stellaide.controller.dto.container.EditContainerReqDto;
 import shootingstar.stellaide.service.dto.ContainerTreeResDto;
 import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
 import shootingstar.stellaide.entity.SharedUserContainer;
 import shootingstar.stellaide.entity.chat.ChatRoom;
 import shootingstar.stellaide.entity.container.Container;
-import shootingstar.stellaide.entity.container.ContainerAlign;
-import shootingstar.stellaide.entity.container.ContainerGroup;
 import shootingstar.stellaide.entity.container.ContainerType;
 import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
@@ -42,13 +41,13 @@ public class ContainerService {
 
     private final CheckDuplicateService duplicateService;
 
-    public List<FindContainerDto> getContainer(ContainerGroup group, String query, ContainerAlign align, String accessToken) {
+    public AllContainerDto getContainer(String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
 
         User user = findUserByUUID(userUuid);
 
-        return containerRepository.findContainer(group, query, align, user.getUserId());
+        return containerRepository.findContainer(user.getUserId());
     }
 
     @Transactional
@@ -75,13 +74,14 @@ public class ContainerService {
     }
 
     @Transactional
-    public void editContainer(String containerId, String accessToken) {
+    public void editContainer(String containerId, String description, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         Container container = findContainerByUUID(containerId);
 
         String userUuid = authentication.getName();
         User user = findUserByUUID(userUuid);
 
+        container.changeDescription(description);
     }
 
     @Transactional

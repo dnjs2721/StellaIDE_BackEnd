@@ -2,16 +2,13 @@ package shootingstar.stellaide.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import shootingstar.stellaide.controller.dto.container.CreateContainerReqDto;
-import shootingstar.stellaide.controller.dto.container.FindContainerDto;
-import shootingstar.stellaide.entity.container.ContainerAlign;
-import shootingstar.stellaide.entity.container.ContainerGroup;
+import shootingstar.stellaide.controller.dto.container.AllContainerDto;
 import shootingstar.stellaide.controller.dto.container.*;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.exception.ErrorCode;
@@ -21,7 +18,6 @@ import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
 
 import java.util.List;
-import java.util.UUID;
 
 @Validated
 @RestController
@@ -32,13 +28,10 @@ public class ContainerController {
     private final ContainerService containerService;
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchContainers(@RequestParam(value = "group") ContainerGroup group,
-                                              @RequestParam(value = "query") String query,
-                                              @RequestParam(value = "align") ContainerAlign align,
-                                              HttpServletRequest request) {
+    public ResponseEntity<?> searchContainers(HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
 
-        List<FindContainerDto> containers = containerService.getContainer(group, query, align, accessToken);
+        AllContainerDto containers = containerService.getContainer(accessToken);
         return ResponseEntity.ok().body(containers);
     }
 
@@ -52,10 +45,10 @@ public class ContainerController {
     }
 
     @PatchMapping("/edit/{containerId}")
-    public ResponseEntity<String> editContainer(@PathVariable("containerId") String containerId, HttpServletRequest request) {
+    public ResponseEntity<String> editContainer(@PathVariable("containerId") String containerId, @Valid @RequestBody EditContainerReqDto reqDto, HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
 
-        containerService.editContainer(containerId, accessToken);
+        containerService.editContainer(containerId, reqDto.getDescription(), accessToken);
 
         return ResponseEntity.ok().body("컨테이너 수정이 성공하였습니다.");
     }

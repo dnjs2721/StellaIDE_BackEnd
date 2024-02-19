@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-public class FindContainerDto {
+public class ContainerDto {
     private UUID containerId;
     private ContainerType type;
     private String name;
@@ -18,7 +18,7 @@ public class FindContainerDto {
     private LocalDateTime lastModifiedTime;
 
     @QueryProjection
-    public FindContainerDto(UUID containerId, ContainerType type, String name, String description, UUID editUserUuid, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
+    public ContainerDto(UUID containerId, ContainerType type, String name, String description, UUID editUserUuid, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
         this.containerId = containerId;
         this.type = type;
         this.name = name;
