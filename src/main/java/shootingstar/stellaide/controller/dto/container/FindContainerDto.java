@@ -1,7 +1,6 @@
 package shootingstar.stellaide.controller.dto.container;
 
 import com.querydsl.core.annotations.QueryProjection;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import shootingstar.stellaide.entity.container.ContainerType;
 
@@ -14,18 +13,18 @@ public class FindContainerDto {
     private ContainerType type;
     private String name;
     private String description;
-    private LocalDateTime createTime;
-    private LocalDateTime editTime;
     private UUID editUserUuid;
+    private LocalDateTime createdTime;
+    private LocalDateTime lastModifiedTime;
 
     @QueryProjection
-    public FindContainerDto(UUID containerId, ContainerType type, String name, String description, LocalDateTime createTime, LocalDateTime editTime, UUID editUserUuid) {
+    public FindContainerDto(UUID containerId, ContainerType type, String name, String description, UUID editUserUuid, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
         this.containerId = containerId;
         this.type = type;
         this.name = name;
         this.description = description;
-        this.createTime = createTime;
-        this.editTime = editTime;
         this.editUserUuid = editUserUuid;
+        this.createdTime = createdTime;
+        this.lastModifiedTime = lastModifiedTime;
     }
 }

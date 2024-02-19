@@ -57,7 +57,7 @@ public class CheckDuplicateService {
 
     private void checkForbiddenContainerName(String containerName) {
         // 알파벳, 숫자, 마침표(.), 밑줄(_), 하이픈(-)만 허용
-        String regex = "^[[:alnum:]\\-_.]+$";
+        String regex = "^[\\w\\-_.]+$";
 
         boolean matches = Pattern.matches(regex, containerName);
         if (!matches) {
