@@ -49,6 +49,7 @@ public class SecurityConfig {
                                         ).authenticated()
                                         .requestMatchers( // 인증 없이 접근 허용
                                                 "/error",
+                                                "/ws/chat",
                                                 "/api/verification/**",
                                                 "/api/check-duplicate/**",
                                                 "/api/auth/**"

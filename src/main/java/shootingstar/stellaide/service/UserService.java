@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import shootingstar.stellaide.controller.dto.user.ProfileResDto;
+import shootingstar.stellaide.service.dto.ProfileResDto;
 import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.user.UserRepository;
