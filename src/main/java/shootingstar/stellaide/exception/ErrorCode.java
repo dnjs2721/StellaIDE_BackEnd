@@ -44,6 +44,9 @@ public enum ErrorCode {
     FORBIDDEN_NICKNAME(FORBIDDEN, "1303", "허용되지 않는 닉네임입니다."),
     PASSWORD_CURRENTLY_IN_USE(CONFLICT, "1304", "현재 사용중인 패스워드입니다. 다른 패스워드로 입력바랍니다."),
     NOT_SUPPORT_IMG_TYPE(CONFLICT, "1305", "지원하지 않는 이미지 타입입니다. PNG 파일을 사용해주세요."),
+
+    INCORRECT_FORMAT_CONTAINER_NAME(BAD_REQUEST, "2001", "잘못된 형식의 컨테이너 이름입니다."),
+    DUPLICATE_CONTAINER_NAME(CONFLICT, "2301", "이미 사용중인 컨테이너 이름입니다.")
     ;
 
     private final HttpStatus httpStatus;

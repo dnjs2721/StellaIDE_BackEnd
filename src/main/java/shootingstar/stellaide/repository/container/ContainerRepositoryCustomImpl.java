@@ -1,15 +1,16 @@
 package shootingstar.stellaide.repository.container;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import org.springframework.util.StringUtils;
-import shootingstar.stellaide.controller.dto.container.FindContainerDto;
-import shootingstar.stellaide.controller.dto.container.QFindContainerDto;
+import shootingstar.stellaide.controller.dto.container.AllContainerDto;
+import shootingstar.stellaide.controller.dto.container.ContainerDto;
+import shootingstar.stellaide.controller.dto.container.QContainerDto;
+import shootingstar.stellaide.entity.QSharedUserContainer;
 
 import java.util.List;
+import java.util.UUID;
 
-import static shootingstar.stellaide.entity.container.QContainer.*;
+import static shootingstar.stellaide.entity.container.QContainer.container;
 
 public class ContainerRepositoryCustomImpl implements ContainerRepositoryCustom {
 
@@ -20,22 +21,37 @@ public class ContainerRepositoryCustomImpl implements ContainerRepositoryCustom 
     }
 
     @Override
-    public List<FindContainerDto> findContainer(String group, String query, String align) {
-        return queryFactory
-                .select(new QFindContainerDto(
+    public AllContainerDto findContainer(UUID userUuid) {
+        List<ContainerDto> ownContainers = queryFactory
+                .select(new QContainerDto(
                         container.containerId,
                         container.type,
                         container.name,
                         container.description,
+                        container.editUserUuid,
                         container.createdTime,
-                        container.lastModifiedTime,
-                        container.editUserUuid))
-                .join(container) // 조건 수정: 그룹(모두, 소유, 공유)에 따른 컨테이너 -> 그룹 컨테이너 테이블에 해당 유저의 컨테이너 리스트만 추출
-                .where(containQuery(query))
+                        container.lastModifiedTime))
+                .from(container)
+                .leftJoin(QSharedUserContainer.sharedUserContainer)
+                .on(container.containerId.eq(QSharedUserContainer.sharedUserContainer.container.containerId))
+                .where(container.owner.userId.eq(userUuid).or(QSharedUserContainer.sharedUserContainer.sharedUser.userId.eq(userUuid)))
                 .fetch();
-    }
 
-    private BooleanExpression containQuery(String query) {
-        return StringUtils.hasText(query) ? container.name.contains(query) : null;
+        List<ContainerDto> shareContainers = queryFactory
+                .select(new QContainerDto(
+                        container.containerId,
+                        container.type,
+                        container.name,
+                        container.description,
+                        container.editUserUuid,
+                        container.createdTime,
+                        container.lastModifiedTime))
+                .from(QSharedUserContainer.sharedUserContainer)
+                .join(container)
+                .on(container.containerId.eq(QSharedUserContainer.sharedUserContainer.container.containerId))
+                .where(QSharedUserContainer.sharedUserContainer.sharedUser.userId.eq(userUuid))
+                .fetch();
+
+        return new AllContainerDto(ownContainers, shareContainers);
     }
 }

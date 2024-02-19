@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.exception.ErrorCode;
+import shootingstar.stellaide.repository.container.ContainerRepository;
 import shootingstar.stellaide.repository.user.UserRepository;
 
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class CheckDuplicateService {
     private final UserRepository userRepository;
+    private final ContainerRepository containerRepository;
 
     private static final List<String> forbiddenWords = Arrays.asList("admin", "adm1n", "moderator", "banned");
 
@@ -43,6 +45,23 @@ public class CheckDuplicateService {
         boolean forbidden = forbiddenWords.stream().noneMatch(nickname::contains);
         if (!forbidden) {
             throw new CustomException(ErrorCode.FORBIDDEN_NICKNAME);
+        }
+    }
+
+    public void checkDuplicateContainerName(String containerName) {
+        checkForbiddenContainerName(containerName);
+        if (containerRepository.existsByName(containerName)) {
+            throw new CustomException(ErrorCode.DUPLICATE_CONTAINER_NAME);
+        }
+    }
+
+    private void checkForbiddenContainerName(String containerName) {
+        // 알파벳, 숫자, 마침표(.), 밑줄(_), 하이픈(-)만 허용
+        String regex = "^[\\w\\-_.]+$";
+
+        boolean matches = Pattern.matches(regex, containerName);
+        if (!matches) {
+            throw new CustomException(ErrorCode.INCORRECT_FORMAT_CONTAINER_NAME);
         }
     }
 }

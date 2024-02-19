@@ -3,7 +3,9 @@ package shootingstar.stellaide.repository.user;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import shootingstar.stellaide.entity.user.QUser;
+import shootingstar.stellaide.entity.user.User;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static shootingstar.stellaide.entity.user.QUser.*;
