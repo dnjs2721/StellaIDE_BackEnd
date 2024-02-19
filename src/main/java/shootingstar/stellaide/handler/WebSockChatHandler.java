@@ -60,6 +60,7 @@ public class WebSockChatHandler extends TextWebSocketHandler {
             sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
         }
         else{
+            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
             chatService.saveMessage(chatMessageDTO,room);
         }
     }

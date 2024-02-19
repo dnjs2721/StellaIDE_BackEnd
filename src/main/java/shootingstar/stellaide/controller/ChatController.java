@@ -20,36 +20,42 @@ import shootingstar.stellaide.service.dto.ChatRoomDTO;
 public class ChatController {
     private final ChatService chatService;
 
-    /**
-     채팅방 목록 나열
-     @RequestMapping("chat/chatList")
-     public String chatList(Model model){
-     List<ChatRoom> roomList = chatService.findAllRoom();
-     model.addAttribute("roomList",roomList);
-     return "chatList";
-     }
-     */
+
 
     /**
      * 채팅방 생성
-     * containerId 받아오기
      */
     @PostMapping("/createRoom")
     public ResponseEntity<String> createRoom(@RequestParam(value = "roomId",required = false) Long roomId){
         chatService.createRoom(roomId);
         return ResponseEntity.ok().body("채팅방 생성");
     }
+
+    /**
+     * 채팅방 이동
+     * @param chatRoom
+     */
     @GetMapping("/chatRoom")
     public ResponseEntity<ChatRoomDTO> chatRoom(@Valid @RequestBody ChatRoom chatRoom){
         ChatRoomDTO chatRoomDTO = chatService.findRoomById(chatRoom.getChatRoomId());
         return ResponseEntity.ok().body(chatRoomDTO);
     }
 
+    /**
+     * 글로벌 채팅방
+     * @param chatRoomId
+     */
     @GetMapping("/globalChatRoom")
-    public ResponseEntity<ChatRoomDTO> globalChatRoom(@RequestParam(value = "chatRoomId", required = false) Long chatRoomId){
+    public ResponseEntity<ChatRoomDTO> globalChatRoom(@RequestParam(value = "chatRoomId") Long chatRoomId){
         ChatRoomDTO chatRoomDTO = chatService.findRoomById(chatRoomId);
         return ResponseEntity.ok().body(chatRoomDTO);
     }
+
+    /**
+     * 채팅 내역 불러오기
+     * @param roomId
+     * @param pageable
+     */
     @GetMapping("/container/loadHistory")
     public ResponseEntity<?> getAllListPage(@RequestParam("roomId") Long roomId,
                                              @PageableDefault(size =100) Pageable pageable){

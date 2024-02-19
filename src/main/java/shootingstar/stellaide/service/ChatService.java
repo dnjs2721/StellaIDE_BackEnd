@@ -38,7 +38,10 @@ public class ChatService {
     @PostConstruct
     private void init() {
         chatRoomsDTO = new LinkedHashMap<>();
+        GlobalChatRoom globalChatRoom = new GlobalChatRoom(999L);
+        globalChatRoomRepository.save(globalChatRoom);
     }
+
 
     /*
     채팅방 목록 불러오기
@@ -84,6 +87,9 @@ public class ChatService {
 
     @Transactional
     public GlobalChatRoom createRoom(Long roomId) {
+            if(globalChatRoomRepository.findById(999L)!=null){
+                throw new RuntimeException("alreay exist");
+            }
             GlobalChatRoom globalChatRoom = new GlobalChatRoom(999L);
             globalChatRoomRepository.save(globalChatRoom);
             return globalChatRoom;
