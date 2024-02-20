@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoom {
+public class ContainerChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatRoomId;
@@ -24,16 +24,16 @@ public class ChatRoom {
     @JoinColumn(name = "container_id")
     private Container container;
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private final List<ChatRoomMessage> messageList = new ArrayList<>();
+    @OneToMany(mappedBy = "containerChatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private final List<ContainerChatRoomMessage> messageList = new ArrayList<>();
 
     @Builder
-    public ChatRoom(Container container, String chatRoomName) {
+    public ContainerChatRoom(Container container, String chatRoomName) {
         this.container = container;
         this.chatRoomName = chatRoomName;
     }
 
-    public void addChatMessage(ChatRoomMessage message) {
+    public void addChatMessage(ContainerChatRoomMessage message) {
         this.messageList.add(message);
     }
 }
