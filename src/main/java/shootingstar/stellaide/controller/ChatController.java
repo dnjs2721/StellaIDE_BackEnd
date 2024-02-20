@@ -81,7 +81,7 @@ public class ChatController {
      * @param roomId
      * @param pageable
      */
-    @GetMapping("/container/loadHistory")
+//    @GetMapping("/container/roomId/loadHistory")
     public ResponseEntity<?> getAllListPage(@RequestParam("roomId") Long roomId,
                                              @PageableDefault(size =100) Pageable pageable){
 
