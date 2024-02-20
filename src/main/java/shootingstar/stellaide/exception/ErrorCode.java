@@ -56,7 +56,7 @@ public enum ErrorCode {
     DENIED_PERMISSION_CONTAINER(CONFLICT, "2100", "해당 컨테이너에 대한 권한이 없습니다."),
 
     NOT_FOUND_CONTAINER(NOT_FOUND, "2200", "존재하지 않는 컨테이너입니다."),
-    NOT_FOUND_SHARED_USER_CONTAINER(NOT_FOUND, "2201", "존재하지 않는 사용자 콩유입니다."),
+    NOT_FOUND_SHARED_USER_CONTAINER(NOT_FOUND, "2201", "존재하지 않는 사용자 공유입니다."),
 
     MAX_CONTAINER_ERROR(CONFLICT, "2301", "컨테이너는 최대 5개까지 생성 가능합니다"),
     DUPLICATE_CONTAINER_NAME(CONFLICT, "2302", "이미 사용중인 컨테이너 이름입니다."),

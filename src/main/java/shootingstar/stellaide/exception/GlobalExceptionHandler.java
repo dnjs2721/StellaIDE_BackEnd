@@ -96,19 +96,14 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = INCORRECT_FORMAT;
 
         for (Map.Entry<String, String> entry : fieldErrors.entrySet()) {
-            switch (entry.getKey()) {
-                case "containerId" -> {
-                    errorCode = INCORRECT_FORMAT_CONTAINER_ID;
-                    break;
-                }
-                case "roomId" -> {
-                    errorCode = INCORRECT_FORMAT_ROOM_ID;
-                    break;
-                }
-                case "userNickName" -> {
-                    errorCode = INCORRECT_FORMAT_NICKNAME;
-                    break;
-                }
+            String fieldName = entry.getKey();
+
+            if (fieldName.contains("containerId")) {
+                errorCode = INCORRECT_FORMAT_CONTAINER_ID;
+            } else if (fieldName.contains("roomId")) {
+                errorCode = INCORRECT_FORMAT_ROOM_ID;
+            } else if (fieldName.contains("userNickName")) {
+                errorCode = INCORRECT_FORMAT_NICKNAME;
             }
 
             if (!errorCode.equals(INCORRECT_FORMAT)) {
