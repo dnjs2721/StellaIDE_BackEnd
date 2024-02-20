@@ -1,4 +1,4 @@
-package shootingstar.stellaide.repository.chatRoom;
+package shootingstar.stellaide.repository.chatRoom.global;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

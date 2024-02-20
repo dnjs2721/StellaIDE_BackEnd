@@ -2,10 +2,10 @@ package shootingstar.stellaide.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import shootingstar.stellaide.controller.dto.container.CreateContainerReqDto;
@@ -17,8 +17,6 @@ import shootingstar.stellaide.service.ContainerService;
 import shootingstar.stellaide.service.dto.ContainerTreeResDto;
 import shootingstar.stellaide.service.dto.GetRoomResDto;
 import shootingstar.stellaide.service.dto.SpringContainerResDto;
-
-import java.util.List;
 
 @Validated
 @RestController
@@ -37,25 +35,26 @@ public class ContainerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createContainer(@Valid @RequestBody CreateContainerReqDto reqDto, HttpServletRequest request) {
+    public ResponseEntity<String> createContainer(@Valid @RequestBody CreateContainerReqDto reqDto,
+                                                  HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
-
-        containerService.createContainer(reqDto.getType(), reqDto.getName(), reqDto.getDescription(), accessToken);
-
+        containerService.createContainer(reqDto.getContainerType(), reqDto.getContainerName(), reqDto.getContainerDescription(), accessToken);
         return ResponseEntity.ok().body("컨테이너 생성에 성공하였습니다.");
     }
 
-    @PatchMapping("/edit/{containerId}")
-    public ResponseEntity<String> editContainer(@PathVariable("containerId") String containerId, @Valid @RequestBody EditContainerReqDto reqDto, HttpServletRequest request) {
+    @PatchMapping("/edit")
+    public ResponseEntity<String> editContainer(@Valid @RequestBody EditContainerReqDto reqDto,
+                                                HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
 
-        containerService.editContainer(containerId, reqDto.getDescription(), accessToken);
+        containerService.editContainer(reqDto.getContainerId(), reqDto.getContainerDescription(), accessToken);
 
         return ResponseEntity.ok().body("컨테이너 수정이 성공하였습니다.");
     }
 
     @DeleteMapping("/delete/{containerId}")
-    public ResponseEntity<String> deleteContainer(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+    public ResponseEntity<String> deleteContainer(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId,
+                                                  HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
 
         containerService.deleteContainer(containerId, accessToken);
@@ -63,20 +62,23 @@ public class ContainerController {
         return ResponseEntity.ok().body("컨테이너 삭제에 성공하였습니다.");
     }
 
-    @PostMapping("/share/{containerId}/{userNickname}")
-    public ResponseEntity<String> shareContainer(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, @PathVariable("userNickname") String userNickname, HttpServletRequest request) {
+    @PostMapping("/share")
+    public ResponseEntity<String> shareContainer(@Valid @RequestBody ShareContainerReqDto reqDto,
+                                                 HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
 
-        containerService.shareContainer(containerId, userNickname, accessToken);
+        containerService.shareContainer(reqDto.getContainerId(), reqDto.getUserNickname(), accessToken);
 
         return ResponseEntity.ok().body("컨테이너 공유에 성공하였습니다.");
     }
 
     @DeleteMapping("/unshare/{containerId}/{userNickname}")
-    public ResponseEntity<String> unshareContainer(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, @PathVariable("userNickname") String userNickname, HttpServletRequest request) {
+    public ResponseEntity<String> unshareContainer(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId,
+                                                   @NotBlank @PathVariable("userNickname") String userNickname,
+                                                   HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
 
-        containerService.unshareContainer(containerId, userNickname, accessToken);
+        containerService.cancelContainerSharing(containerId, userNickname, accessToken);
 
         return ResponseEntity.ok().body("컨테이너 공유 해제에 성공하였습니다.");
     }
@@ -88,7 +90,7 @@ public class ContainerController {
     }
 
     @GetMapping("/fileContent")
-    public ResponseEntity<String> getFileContent(@ModelAttribute FileContentReqDto reqDto) {
+    public ResponseEntity<String> getFileContent(@Valid @ModelAttribute FileContentReqDto reqDto) {
         String fileContent = containerService.getFileContent(reqDto.getContainerId(), reqDto.getFilePath());
         return ResponseEntity.ok().body(fileContent);
     }
@@ -107,12 +109,13 @@ public class ContainerController {
 
     @PostMapping("/execution")
     public ResponseEntity<String> executionFile(@RequestBody @Valid ExecutionFileReqDto reqDto) {
-        containerService.executionFile(reqDto.getContainerId(), reqDto.getPath());
-        return ResponseEntity.ok("");
+        String output = containerService.executionFile(reqDto.getContainerId(), reqDto.getPath());
+        return ResponseEntity.ok(output);
     }
 
     @GetMapping("/getRoomId/{containerId}")
-    public ResponseEntity<GetRoomResDto> getRoomId(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+    public ResponseEntity<GetRoomResDto> getRoomId(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId,
+                                                   HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         GetRoomResDto roomInfo = containerService.getRoomId(containerId, accessToken);
         return ResponseEntity.ok().body(roomInfo);

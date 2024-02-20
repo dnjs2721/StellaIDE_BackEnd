@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import shootingstar.stellaide.entity.BaseTimeTimeEntity;
 import shootingstar.stellaide.entity.SharedUserContainer;
-import shootingstar.stellaide.entity.chat.ChatRoom;
+import shootingstar.stellaide.entity.chat.ContainerChatRoom;
 import shootingstar.stellaide.entity.user.User;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class Container extends BaseTimeTimeEntity {
     @NotBlank
     private String description;
 
-    private UUID editUserUuid;
+    private String editUserNickname;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -43,14 +43,14 @@ public class Container extends BaseTimeTimeEntity {
     private final List<SharedUserContainer> sharedUsers = new ArrayList<>();
 
     @OneToOne(mappedBy = "container", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private ChatRoom chatRoom;
+    private ContainerChatRoom containerChatRoom;
 
     public Container(ContainerType type, String name, String description, User owner) {
         this.type = type;
         this.name = name;
         this.description = description;
         this.owner = owner;
-        this.editUserUuid = owner.getUserId();
+        this.editUserNickname = owner.getNickname();
     }
 
     public void addSharedUser(SharedUserContainer userContainer) {

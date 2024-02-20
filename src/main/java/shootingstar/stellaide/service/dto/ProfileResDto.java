@@ -9,4 +9,6 @@ public class ProfileResDto {
     private String email;
     private String nickname;
     private String profileImgUrl;
+    private Integer ownedContainers;
+    private Integer sharedContainers;
 }

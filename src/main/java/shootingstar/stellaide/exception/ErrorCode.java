@@ -12,6 +12,7 @@ public enum ErrorCode {
     INCORRECT_FORMAT(BAD_REQUEST, "0001", "잘못된 입력입니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED,"0002", "제공되지 않는 메서드입니다."),
     STORAGE_ERROR(INTERNAL_SERVER_ERROR,"0003", "저장소 연결에 실패하였습니다."),
+    STORAGE_COMMEND_ERROR(INTERNAL_SERVER_ERROR,"0004", "명령어 실행에 실패하였습니다."),
 
     AUTHENTICATION_ERROR(UNAUTHORIZED, "0100", "인증에 실패하였습니다."),
     ACCESS_DENIED(FORBIDDEN, "0101", "잘못된 접근입니다."),
@@ -45,8 +46,32 @@ public enum ErrorCode {
     PASSWORD_CURRENTLY_IN_USE(CONFLICT, "1304", "현재 사용중인 패스워드입니다. 다른 패스워드로 입력바랍니다."),
     NOT_SUPPORT_IMG_TYPE(CONFLICT, "1305", "지원하지 않는 이미지 타입입니다. PNG 파일을 사용해주세요."),
 
+    INCORRECT_FORMAT_CONTAINER_ID(BAD_REQUEST, "2000", "잘못된 형식의 컨테이너 고유번호입니다."),
     INCORRECT_FORMAT_CONTAINER_NAME(BAD_REQUEST, "2001", "잘못된 형식의 컨테이너 이름입니다."),
-    DUPLICATE_CONTAINER_NAME(CONFLICT, "2301", "이미 사용중인 컨테이너 이름입니다.")
+    INCORRECT_FORMAT_CONTAINER_TYPE(BAD_REQUEST, "2002", "잘못된 형식의 컨테이너 타입입니다."),
+    INCORRECT_FORMAT_CONTAINER_DES(BAD_REQUEST, "2003", "잘못된 형식의 컨테이너 설명입니다."),
+    INCORRECT_FORMAT_FILE_PATH(BAD_REQUEST, "2004", "잘못된 형식의 파일(디렉토리) 경로입니다."),
+    INCORRECT_FORMAT_FILE_NAME(BAD_REQUEST, "2005", "잘못된 형식의 파일(디렉토리) 이름입니다."),
+
+    DENIED_PERMISSION_CONTAINER(CONFLICT, "2100", "해당 컨테이너에 대한 권한이 없습니다."),
+
+    NOT_FOUND_CONTAINER(NOT_FOUND, "2200", "존재하지 않는 컨테이너입니다."),
+    NOT_FOUND_SHARED_USER_CONTAINER(NOT_FOUND, "2201", "존재하지 않는 사용자 콩유입니다."),
+
+    MAX_CONTAINER_ERROR(CONFLICT, "2301", "컨테이너는 최대 5개까지 생성 가능합니다"),
+    DUPLICATE_CONTAINER_NAME(CONFLICT, "2302", "이미 사용중인 컨테이너 이름입니다."),
+    MAX_SHARED_ERROR(CONFLICT, "2303", "최대 5명까지 공유 가능합니다."),
+    ALREADY_SHARED_ERROR(CONFLICT, "2304", "이미 공유된 사용자입니다."),
+    FAILED_SHARED_ERROR(CONFLICT, "2305", "자신은 공유 대상자가 아닙니다."),
+    FAILED_LOAD_CONTAINER_TREE(INTERNAL_SERVER_ERROR, "2306", "컨테이너 트리 정보를 가지고 오는데 실패하였습니다."),
+    NOT_SUPPORT_CONTAINER_TYPE(CONFLICT, "2307", "지원하지 않는 컨테이너 타입입니다."),
+
+    WEB_SOCKET_ERROR(BAD_REQUEST,"3000", "잘못된 형식의 웹소켓입니다."),
+    INCORRECT_FORMAT_ROOM_TYPE(BAD_REQUEST, "3001", "잘못된 채팅방 타입입니다."),
+    INCORRECT_FORMAT_ROOM_ID(BAD_REQUEST, "3002", "잘못된 채팅방 고유번호입니다."),
+
+    WEB_SOCKET_SESSION_ERROR(BAD_REQUEST,"3200", "존재하지 않는 웹소켓 세션입니다."),
+    NOT_FOUND_CHAT_ROOM(NOT_FOUND, "3201", "존재하지 않는 채팅방입니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -8,6 +8,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
@@ -36,7 +38,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String token = resolveToken(httpRequest);
         String requestURI = httpRequest.getRequestURI();
-
+        log.info("JwtAuthenticationFilter requestURI {}", requestURI);
         /*
           /api/auth/refresh, /api/auth/logout, /error 엔드 포인트는 JWT 검증을 하지 않는다
           /api/auth/refresh, /api/auth/logout 엔드 포인트는 Controller, Service 에서 별도의 검증을 한다.

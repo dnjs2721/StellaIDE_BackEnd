@@ -3,13 +3,14 @@ package shootingstar.stellaide.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import shootingstar.stellaide.exception.CustomException;
-import shootingstar.stellaide.exception.ErrorCode;
 import shootingstar.stellaide.repository.container.ContainerRepository;
 import shootingstar.stellaide.repository.user.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static shootingstar.stellaide.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,14 +22,14 @@ public class CheckDuplicateService {
 
     public void checkDuplicateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            throw new CustomException(DUPLICATE_EMAIL);
         }
     }
 
     public void checkDuplicateNickname(String nickname) {
         checkForbiddenNickname(nickname);
         if (userRepository.existsByNickname(nickname)) {
-            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            throw new CustomException(DUPLICATE_NICKNAME);
         }
     }
 
@@ -38,20 +39,20 @@ public class CheckDuplicateService {
 
         boolean matches = Pattern.matches(regex, nickname);
         if (!matches) {
-            throw new CustomException(ErrorCode.INCORRECT_FORMAT_NICKNAME);
+            throw new CustomException(INCORRECT_FORMAT_NICKNAME);
         }
 
         // 정규 표현식과 매치되는지 확인, 금지어 사용 확인
         boolean forbidden = forbiddenWords.stream().noneMatch(nickname::contains);
         if (!forbidden) {
-            throw new CustomException(ErrorCode.FORBIDDEN_NICKNAME);
+            throw new CustomException(FORBIDDEN_NICKNAME);
         }
     }
 
     public void checkDuplicateContainerName(String containerName) {
         checkForbiddenContainerName(containerName);
         if (containerRepository.existsByName(containerName)) {
-            throw new CustomException(ErrorCode.DUPLICATE_CONTAINER_NAME);
+            throw new CustomException(DUPLICATE_CONTAINER_NAME);
         }
     }
 
@@ -61,7 +62,7 @@ public class CheckDuplicateService {
 
         boolean matches = Pattern.matches(regex, containerName);
         if (!matches) {
-            throw new CustomException(ErrorCode.INCORRECT_FORMAT_CONTAINER_NAME);
+            throw new CustomException(INCORRECT_FORMAT_CONTAINER_NAME);
         }
     }
 }

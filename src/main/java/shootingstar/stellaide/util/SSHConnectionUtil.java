@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static shootingstar.stellaide.exception.ErrorCode.NOT_SUPPORT_IMG_TYPE;
+import static shootingstar.stellaide.exception.ErrorCode.STORAGE_COMMEND_ERROR;
 
 @Slf4j
 @Service
@@ -169,7 +170,7 @@ public class SSHConnectionUtil {
         executeCommand(command);
     }
 
-    public void executionFile(String containerName, String filePath, ContainerType type) {
+    public String executionFile(String containerName, String filePath, ContainerType type) {
         String remotePath = containerPath + containerName;
         String command = null;
         switch (type) {
@@ -186,8 +187,7 @@ public class SSHConnectionUtil {
                 break;
             }
         }
-        String output = executeCommand(command);
-        log.info(output);
+        return executeCommand(command);
     }
 
     public String executionSpring(String containerName) {
@@ -271,7 +271,7 @@ public class SSHConnectionUtil {
         }
 
         if (existStatus != 0) {
-            throw new RuntimeException();
+            throw new CustomException(STORAGE_COMMEND_ERROR);
         }
         return output;
     }

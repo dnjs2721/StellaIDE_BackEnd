@@ -1,8 +1,6 @@
 package shootingstar.stellaide.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,16 +8,19 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import shootingstar.stellaide.entity.chat.ChatRoomMessage;
-import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
+import shootingstar.stellaide.entity.chat.ChatRoomType;
+import shootingstar.stellaide.entity.chat.MessageType;
+import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.service.ChatService;
-import shootingstar.stellaide.service.dto.ChatRoomDTO;
-import shootingstar.stellaide.service.dto.ChatRoomMessageDTO;
+import shootingstar.stellaide.service.dto.ChatRoomDto;
+import shootingstar.stellaide.service.dto.ChatRoomMessageDto;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static shootingstar.stellaide.exception.ErrorCode.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,46 +28,62 @@ import java.util.Set;
 public class WebSocketChatHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final ChatService chatService;
-    private final ChatRoomMessageRepository chatRoomMessageRepository;
-    private Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<WebSocketSession>());
+    private final Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<>());
 
 //    private Map<String, ArrayList<WebSocketSession>> RoomList = new ConcurrentHashMap<String, ArrayList<WebSocketSession>>();
 //    private Map<WebSocketSession, String> sessionList = new ConcurrentHashMap<WebSocketSession, String>();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info(session.getId());
+    public void afterConnectionEstablished(WebSocketSession session) {
+        log.info("session Connect : {}", session.getId());
+        sessions.add(session);
     }
 
+    //세션 끊을 때
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        log.info("session Close : {}", session.getId());
+        sessions.remove(session);
+    }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
-        ChatRoomMessageDTO chatMessageDTO = objectMapper.readValue(payload, ChatRoomMessageDTO.class);
-        //DM chat
-        if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.DM)){
-            ChatRoomDTO room = chatService.findDMRoomById(chatMessageDTO.getRoomId());
-            sessions = room.getSessions();
-            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-            chatService.saveDMMessage(chatMessageDTO,room);
+        ChatRoomMessageDto chatRoomMessageDto = null;
+        try {
+            chatRoomMessageDto = objectMapper.readValue(payload, ChatRoomMessageDto.class);
+        } catch (Exception e) {
+            log.info("handleTextMessage Error {}", e.getMessage());
+            throw new CustomException(WEB_SOCKET_ERROR);
         }
-        //Container chat
-        else if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.RoomType.CONTAINER)){
-            ChatRoomDTO room = chatService.findRoomById(chatMessageDTO.getRoomId());
-            sessions = room.getSessions();
-            if(chatMessageDTO.getRoomType().equals(ChatRoomMessageDTO.MessageType.ENTER)){
-                sessions.add(session);
-                chatMessageDTO.setMsg(chatMessageDTO.getSender() + "님이 입장했습니다.");
+
+        ChatRoomDto chatRoomDto;
+        if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)) {
+            chatRoomDto = chatService.findDmChatRoomById(chatRoomMessageDto.getRoomId());
+        } else if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)) {
+            chatRoomDto = chatService.findContainerChatRoomById(chatRoomMessageDto.getRoomId());
+        } else if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.GLOBAL)) {
+            chatRoomDto = chatService.findGlobalChatRoom();
+        } else {
+            throw new CustomException(INCORRECT_FORMAT_ROOM_TYPE);
+        }
+
+        // DM Chat
+        if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)){
+            if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
+                chatService.saveDirectMessage(chatRoomMessageDto, chatRoomDto);
             }
-            sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
-            chatService.saveContainerMessage(chatMessageDTO,room);
         }
-        //Global chat
-        else{
-            ChatRoomDTO room = chatService.findRoomById(chatMessageDTO.getRoomId());
-            sessions = room.getSessions();
-            sendToEachSocket(sessions,new TextMessage(objectMapper.writeValueAsString(chatMessageDTO)));
+        // Container Chat
+        else if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)){
+            if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
+                chatService.saveContainerMessage(chatRoomMessageDto,chatRoomDto);
+            }
         }
+        // Global Chat
+
+        // message 전송
+        sendToEachSocket(sessions, message);
     }
 
     private  void sendToEachSocket(Set<WebSocketSession> sessions, TextMessage message){
@@ -74,22 +91,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             try {
                 roomSession.sendMessage(message);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new CustomException(WEB_SOCKET_SESSION_ERROR);
             }
         });
     }
-
-
-
-    //세션 끊을 때
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        sessions.remove(session);
-    }
-
-    public String convertJSON(Object object) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        return objectMapper.writeValueAsString(object);
-    }
-
 }

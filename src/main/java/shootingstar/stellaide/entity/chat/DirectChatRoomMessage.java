@@ -2,39 +2,37 @@ package shootingstar.stellaide.entity.chat;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
-
-import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import shootingstar.stellaide.entity.BaseTimeTimeEntity;
 
 @Entity
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoomMessage {
+public class DirectChatRoomMessage extends BaseTimeTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatRoomId")
-    private ChatRoom chatRoom;
+    @JoinColumn(name = "dmChatRoomId")
+    private DirectChatRoom directChatRoom;
 
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
     @NotBlank
     private String sender;
+
     @NotBlank
     @Column(columnDefinition="LONGTEXT")
     private String message;
-    private LocalDateTime createTime;
 
-
-    public ChatRoomMessage(ChatRoom chatRoom, MessageType messageType, String sender, String message) {
-        this.chatRoom = chatRoom;
+    public DirectChatRoomMessage(MessageType messageType, DirectChatRoom directChatRoom, String sender, String message) {
         this.messageType = messageType;
+        this.directChatRoom = directChatRoom;
         this.sender = sender;
         this.message = message;
-        this.createTime = LocalDateTime.now();
     }
 }

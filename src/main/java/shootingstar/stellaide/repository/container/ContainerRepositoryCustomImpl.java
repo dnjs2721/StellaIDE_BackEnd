@@ -28,9 +28,10 @@ public class ContainerRepositoryCustomImpl implements ContainerRepositoryCustom 
                         container.type,
                         container.name,
                         container.description,
-                        container.editUserUuid,
                         container.createdTime,
-                        container.lastModifiedTime))
+                        container.lastModifiedTime,
+                        container.editUserNickname
+                        ))
                 .from(container)
                 .leftJoin(QSharedUserContainer.sharedUserContainer)
                 .on(container.containerId.eq(QSharedUserContainer.sharedUserContainer.container.containerId))
@@ -43,9 +44,10 @@ public class ContainerRepositoryCustomImpl implements ContainerRepositoryCustom 
                         container.type,
                         container.name,
                         container.description,
-                        container.editUserUuid,
                         container.createdTime,
-                        container.lastModifiedTime))
+                        container.lastModifiedTime,
+                        container.editUserNickname
+                        ))
                 .from(QSharedUserContainer.sharedUserContainer)
                 .join(container)
                 .on(container.containerId.eq(QSharedUserContainer.sharedUserContainer.container.containerId))

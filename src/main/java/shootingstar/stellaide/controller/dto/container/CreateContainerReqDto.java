@@ -8,9 +8,9 @@ import shootingstar.stellaide.entity.container.ContainerType;
 @Data
 public class CreateContainerReqDto {
     @NotNull
-    private ContainerType type;
+    private ContainerType containerType;
     @NotBlank
-    private String name;
+    private String containerName;
     @NotBlank
-    private String description;
+    private String containerDescription;
 }
