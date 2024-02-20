@@ -33,7 +33,7 @@ public class Container extends BaseTimeTimeEntity {
     @NotBlank
     private String description;
 
-    private UUID editUserUuid;
+    private String editUserNickname;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -50,7 +50,7 @@ public class Container extends BaseTimeTimeEntity {
         this.name = name;
         this.description = description;
         this.owner = owner;
-        this.editUserUuid = owner.getUserId();
+        this.editUserNickname = owner.getNickname();
     }
 
     public void addSharedUser(SharedUserContainer userContainer) {

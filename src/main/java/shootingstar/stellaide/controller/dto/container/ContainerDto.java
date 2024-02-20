@@ -13,18 +13,19 @@ public class ContainerDto {
     private ContainerType type;
     private String name;
     private String description;
-    private UUID editUserUuid;
+    private String editUserNickname;
     private LocalDateTime createdTime;
     private LocalDateTime lastModifiedTime;
 
     @QueryProjection
-    public ContainerDto(UUID containerId, ContainerType type, String name, String description, UUID editUserUuid, LocalDateTime createdTime, LocalDateTime lastModifiedTime) {
+    public ContainerDto(UUID containerId, ContainerType type, String name, String description, LocalDateTime createdTime, LocalDateTime lastModifiedTime,
+                        String editUserNickname) {
         this.containerId = containerId;
         this.type = type;
         this.name = name;
         this.description = description;
-        this.editUserUuid = editUserUuid;
         this.createdTime = createdTime;
         this.lastModifiedTime = lastModifiedTime;
+        this.editUserNickname = editUserNickname;
     }
 }
