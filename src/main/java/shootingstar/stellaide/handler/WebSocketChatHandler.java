@@ -76,18 +76,24 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         }
 
         // DM Chat
-        if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)){
-            if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
-                chatService.saveDirectMessage(chatRoomMessageDto, chatRoomDto);
+        try {
+            if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)){
+                if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
+                    chatService.saveDirectMessage(chatRoomMessageDto, chatRoomDto);
+                }
             }
-        }
-        // Container Chat
-        else if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)){
-            if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
-                chatService.saveContainerMessage(chatRoomMessageDto,chatRoomDto);
+            // Container Chat
+            else if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)){
+                if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
+                    chatService.saveContainerMessage(chatRoomMessageDto,chatRoomDto);
+                }
             }
+            // Global Chat
+        } catch (Exception e) {
+            log.info("채팅 내역 저장 실패: {}", e.getMessage());
+            session.close();
+            return;
         }
-        // Global Chat
 
         // message 전송
         try {
