@@ -1,7 +1,7 @@
 package shootingstar.stellaide.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static shootingstar.stellaide.exception.ErrorCode.*;
 
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
                     errorCode = INCORRECT_FORMAT_CODE;
                     break;
                 }
-                case "nickname" -> {
+                case "nickname", "userNickname" -> {
                     errorCode = INCORRECT_FORMAT_NICKNAME;
                     break;
                 }
@@ -47,6 +48,30 @@ public class GlobalExceptionHandler {
                     errorCode = PROFILE_IMG_FILE_IS_EMPTY;
                     break;
                 }
+                case "containerId" -> {
+                    errorCode = INCORRECT_FORMAT_CONTAINER_ID;
+                    break;
+                }
+                case "containerType" -> {
+                    errorCode = INCORRECT_FORMAT_CONTAINER_TYPE;
+                    break;
+                }
+                case "containerName" -> {
+                    errorCode = INCORRECT_FORMAT_CONTAINER_NAME;
+                    break;
+                }
+                case "containerDescription" -> {
+                    errorCode = INCORRECT_FORMAT_CONTAINER_DES;
+                    break;
+                }
+                case "filePath", "path" -> {
+                    errorCode = INCORRECT_FORMAT_FILE_PATH;
+                    break;
+                }
+                case "fileName" , "directoryName" -> {
+                    errorCode = INCORRECT_FORMAT_FILE_NAME;
+                    break;
+                }
             }
 
             if (!errorCode.equals(INCORRECT_FORMAT)) {
@@ -54,6 +79,42 @@ public class GlobalExceptionHandler {
             }
         }
 
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(new ErrorResponse(errorCode));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException exception) {
+        Map<String, String> fieldErrors = new HashMap<>();
+
+        // 각 제약 조건 위반을 순회하며 필드 이름과 오류 메시지를 맵에 저장
+        exception.getConstraintViolations().forEach(violation -> {
+            String field = violation.getPropertyPath().toString();
+            String message = violation.getMessage();
+            fieldErrors.put(field, message);
+        });
+
+        ErrorCode errorCode = INCORRECT_FORMAT;
+
+        for (Map.Entry<String, String> entry : fieldErrors.entrySet()) {
+            switch (entry.getKey()) {
+                case "containerId" -> {
+                    errorCode = INCORRECT_FORMAT_CONTAINER_ID;
+                    break;
+                }
+                case "roomId" -> {
+                    errorCode = INCORRECT_FORMAT_ROOM_ID;
+                    break;
+                }
+                case "userNickName" -> {
+                    errorCode = INCORRECT_FORMAT_NICKNAME;
+                    break;
+                }
+            }
+
+            if (!errorCode.equals(INCORRECT_FORMAT)) {
+                break;
+            }
+        }
         return ResponseEntity.status(errorCode.getHttpStatus()).body(new ErrorResponse(errorCode));
     }
 

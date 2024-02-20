@@ -7,18 +7,19 @@ import shootingstar.stellaide.entity.chat.MessageType;
 import java.time.LocalDateTime;
 
 @Data
-public class FindAllDmMessageByRoomIdDTO {
+public class FindAllChatMessageByRoomIdDto {
     private String sender;
     private String msg;
+    private MessageType type;
     private LocalDateTime createTime ;
     private Long roomId;
 
     @QueryProjection
-    public FindAllDmMessageByRoomIdDTO(Long roomId, String sender, String msg, LocalDateTime createTime){
+    public FindAllChatMessageByRoomIdDto(Long roomId, String sender, String msg, LocalDateTime createTime, MessageType type){
         this.roomId = roomId;
         this.sender = sender;
         this.msg = msg;
+        this.type = type;
         this.createTime = createTime;
     }
-
 }

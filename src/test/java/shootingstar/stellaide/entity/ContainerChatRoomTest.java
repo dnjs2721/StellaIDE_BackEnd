@@ -4,14 +4,14 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import shootingstar.stellaide.entity.chat.ChatRoom;
-import shootingstar.stellaide.entity.chat.ChatRoomMessage;
+import shootingstar.stellaide.entity.chat.ContainerChatRoom;
+import shootingstar.stellaide.entity.chat.ContainerChatRoomMessage;
 import shootingstar.stellaide.entity.chat.MessageType;
 import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.entity.container.ContainerType;
 import shootingstar.stellaide.entity.user.User;
-import shootingstar.stellaide.repository.chatRoom.ChatRoomMessageRepository;
-import shootingstar.stellaide.repository.chatRoom.ChatRoomRepository;
+import shootingstar.stellaide.repository.chatRoom.container.ContainerChatRoomMessageRepository;
+import shootingstar.stellaide.repository.chatRoom.container.ContainerChatRoomRepository;
 import shootingstar.stellaide.repository.container.ContainerRepository;
 import shootingstar.stellaide.repository.user.UserRepository;
 
@@ -20,16 +20,16 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-class ChatRoomTest {
+class ContainerChatRoomTest {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private ContainerRepository containerRepository;
     @Autowired
-    private ChatRoomRepository chatRoomRepository;
+    private ContainerChatRoomRepository containerChatRoomRepository;
     @Autowired
-    private ChatRoomMessageRepository messageRepository;
+    private ContainerChatRoomMessageRepository messageRepository;
 
 
     @Test
@@ -42,15 +42,15 @@ class ChatRoomTest {
         Container container = new Container(ContainerType.JAVA, "testContainer", "test", user);
         containerRepository.save(container);
 
-        ChatRoom newChat = new ChatRoom(container, "채팅방1");
+        ContainerChatRoom newChat = new ContainerChatRoom(container, "채팅방1");
 
         //when
-        chatRoomRepository.save(newChat);
-        chatRoomRepository.flush();
+        containerChatRoomRepository.save(newChat);
+        containerChatRoomRepository.flush();
 
         Long chatRoomId = newChat.getChatRoomId();
 
-        Optional<ChatRoom> findChat = chatRoomRepository.findById(chatRoomId);
+        Optional<ContainerChatRoom> findChat = containerChatRoomRepository.findById(chatRoomId);
         Long findChatId = findChat.get().getChatRoomId();
 
         //then
@@ -67,30 +67,31 @@ class ChatRoomTest {
         Container container = new Container(ContainerType.JAVA, "testContainer", "test", user);
         containerRepository.save(container);
 
-        ChatRoom newChat = new ChatRoom(container, "채팅방1");
-        chatRoomRepository.flush();
+        ContainerChatRoom newChat = new ContainerChatRoom(container, "채팅방1");
+        containerChatRoomRepository.save(newChat);
+        containerChatRoomRepository.flush();
 
         Long chatRoomId = newChat.getChatRoomId();
-        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(chatRoomId);
+        Optional<ContainerChatRoom> optionalChatRoom = containerChatRoomRepository.findById(chatRoomId);
 
-        ChatRoom findChat = optionalChatRoom.get();
+        ContainerChatRoom findChat = optionalChatRoom.get();
         Long findChatRoomId = findChat.getChatRoomId();
 
-        ChatRoomMessage chatRoomMessage = new ChatRoomMessage(findChat, MessageType.TALK, "testSender", "testMessage");
-        ChatRoomMessage chatRoomMessage2 = new ChatRoomMessage(findChat, MessageType.TALK, "testSender2", "testMessage2");
-        messageRepository.save(chatRoomMessage);
-        messageRepository.save(chatRoomMessage2);
+        ContainerChatRoomMessage containerChatRoomMessage = new ContainerChatRoomMessage(findChat, MessageType.TALK, "testSender", "testMessage");
+        ContainerChatRoomMessage containerChatRoomMessage2 = new ContainerChatRoomMessage(findChat, MessageType.TALK, "testSender2", "testMessage2");
+        messageRepository.save(containerChatRoomMessage);
+        messageRepository.save(containerChatRoomMessage2);
         messageRepository.flush();
-        findChat.addChatMessage(chatRoomMessage);
-        findChat.addChatMessage(chatRoomMessage2);
+        findChat.addChatMessage(containerChatRoomMessage);
+        findChat.addChatMessage(containerChatRoomMessage2);
 
-        Long messageId = chatRoomMessage.getMessageId();
+        Long messageId = containerChatRoomMessage.getMessageId();
 
         //when
-        ChatRoomMessage findMessage = messageRepository.findById(messageId).get();
+        ContainerChatRoomMessage findMessage = messageRepository.findById(messageId).get();
         System.out.println(findMessage.toString());
 
-        Long linkChatRoomId = findMessage.getChatRoom().getChatRoomId();
+        Long linkChatRoomId = findMessage.getContainerChatRoom().getChatRoomId();
 
         //then
         assertThat(messageId).isEqualTo(findMessage.getMessageId());

@@ -63,7 +63,7 @@ public class UserAuthController {
         // accessToken 만료 제외 검증
         validateAccessToken(accessToken);
         // 리프레시 토큰 검증
-        validateRefreshToken(refreshToken);
+        validateRefreshToken(refreshToken, response);
 
         // 로그아웃 로직 수행
         Authentication authentication = jwtTokenProvider.getAuthenticationFromRefreshToken(refreshToken);
@@ -80,7 +80,7 @@ public class UserAuthController {
         String refreshToken = getTokenFromCookie(request);   // 쿠키에 존재하는 리프레시 토큰을 받아온다.
 
         // 리프레시 토큰 검증
-        validateRefreshToken(refreshToken);
+        validateRefreshToken(refreshToken, response);
 
         // 리프레시 토큰 무효화 검증
         if (!userAuthService.checkRefreshTokenState(refreshToken)) {
@@ -113,7 +113,7 @@ public class UserAuthController {
         String refreshToken = getTokenFromCookie(request); // 쿠키에 존재하는 리프레시 토큰을 받아온다.
 
         // 리프레시 토큰 검증
-        validateRefreshToken(refreshToken);
+        validateRefreshToken(refreshToken, response);
 
         // 리프레시 토큰 무효화 검증
         if (!userAuthService.checkRefreshTokenState(refreshToken)) {
@@ -129,14 +129,14 @@ public class UserAuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refreshAccessToken(HttpServletRequest request) {
+    public ResponseEntity<String> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = getTokenFromCookie(request); // 쿠키에 존재하는 리프레시 토큰을 받아온다.
         String accessToken = getTokenFromHeader(request); // 헤더에 존재하는 엑세스 토큰을 받아온다.
 
         // accessToken 만료 제외 검증
         validateAccessToken(accessToken);
         // 리프레시 토큰 검증
-        validateRefreshToken(refreshToken);
+        validateRefreshToken(refreshToken, response);
 
         // 리프레시 토큰 무효화 검증
         if (!userAuthService.checkRefreshTokenState(refreshToken)) {
@@ -165,12 +165,17 @@ public class UserAuthController {
     }
 
     // 리프레시 토큰 검증 메서드
-    private void validateRefreshToken(String refreshToken) {
+    private void validateRefreshToken(String refreshToken, HttpServletResponse response) {
         if (refreshToken == null) {
             throw new CustomException(INVALID_REFRESH_TOKEN);
         }
         // 리프레시 토큰 검증
-        jwtTokenProvider.validateRefreshToken(refreshToken);
+        try {
+            jwtTokenProvider.validateRefreshToken(refreshToken);
+        } catch (CustomException e) {
+            updateCookie(response, null, 0);
+            throw e;
+        }
     }
 
     // 쿠키에서 리프레시 토큰을 추출하는 메서드
