@@ -102,8 +102,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         sessions.parallelStream().forEach( roomSession -> {
             try {
                 roomSession.sendMessage(message);
-            } catch (Exception e) {
-                throw new CustomException(WEB_SOCKET_SESSION_ERROR);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }
