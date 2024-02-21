@@ -97,6 +97,9 @@ public class ChatService {
 
     //컨테이너 채팅 불러오기
     public Page<FindAllChatMessageByRoomIdDto> getAllMessagePage(Long roomId, Pageable pageable){
+        if (!containerChatRoomRepository.existsById(roomId)) {
+            throw new CustomException(NOT_FOUND_CHAT_ROOM);
+        }
         return containerChatRoomMessageRepository.findAllMessageById(roomId, pageable);
     }
 

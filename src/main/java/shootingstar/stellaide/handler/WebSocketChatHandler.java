@@ -47,51 +47,69 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
         ChatRoomMessageDto chatRoomMessageDto = null;
         try {
             chatRoomMessageDto = objectMapper.readValue(payload, ChatRoomMessageDto.class);
         } catch (Exception e) {
-            log.info("handleTextMessage Error {}", e.getMessage());
-            throw new CustomException(WEB_SOCKET_ERROR);
+            log.info("chatRoomMessageDto 변환 실패 : {}", e.getMessage());
+            session.close();
+            return;
         }
 
-        ChatRoomDto chatRoomDto;
-        if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)) {
-            chatRoomDto = chatService.findDmChatRoomById(chatRoomMessageDto.getRoomId());
-        } else if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)) {
-            chatRoomDto = chatService.findContainerChatRoomById(chatRoomMessageDto.getRoomId());
-        } else if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.GLOBAL)) {
-            chatRoomDto = chatService.findGlobalChatRoom();
-        } else {
-            throw new CustomException(INCORRECT_FORMAT_ROOM_TYPE);
+        ChatRoomDto chatRoomDto = null;
+        try {
+            if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)) {
+                chatRoomDto = chatService.findDmChatRoomById(chatRoomMessageDto.getRoomId());
+            } else if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)) {
+                chatRoomDto = chatService.findContainerChatRoomById(chatRoomMessageDto.getRoomId());
+            } else if (chatRoomMessageDto.getRoomType().equals(ChatRoomType.GLOBAL)) {
+                chatRoomDto = chatService.findGlobalChatRoom();
+            } else {
+                throw new CustomException(INCORRECT_FORMAT_ROOM_TYPE);
+            }
+        } catch (Exception e) {
+            log.info("chatRoomDto 변환 실패 : {}", e.getMessage());
+            session.close();
+            return;
         }
 
         // DM Chat
-        if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)){
-            if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
-                chatService.saveDirectMessage(chatRoomMessageDto, chatRoomDto);
+        try {
+            if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.DM)){
+                if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
+                    chatService.saveDirectMessage(chatRoomMessageDto, chatRoomDto);
+                }
             }
-        }
-        // Container Chat
-        else if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)){
-            if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
-                chatService.saveContainerMessage(chatRoomMessageDto,chatRoomDto);
+            // Container Chat
+            else if(chatRoomMessageDto.getRoomType().equals(ChatRoomType.CONTAINER)){
+                if(chatRoomMessageDto.getType().equals(MessageType.TALK)){
+                    chatService.saveContainerMessage(chatRoomMessageDto,chatRoomDto);
+                }
             }
+            // Global Chat
+        } catch (Exception e) {
+            log.info("채팅 내역 저장 실패: {}", e.getMessage());
+            session.close();
+            return;
         }
-        // Global Chat
 
         // message 전송
-        sendToEachSocket(sessions, message);
+        try {
+            sendToEachSocket(sessions, message);
+        } catch (Exception e) {
+            log.info("메시지 전송 실패 : {}", e.getMessage());
+            session.close();
+        }
     }
 
-    private  void sendToEachSocket(Set<WebSocketSession> sessions, TextMessage message){
+    private  void sendToEachSocket(Set<WebSocketSession> sessions, TextMessage message) {
         sessions.parallelStream().forEach( roomSession -> {
             try {
                 roomSession.sendMessage(message);
             } catch (IOException e) {
-                throw new CustomException(WEB_SOCKET_SESSION_ERROR);
+                throw new RuntimeException(e);
             }
         });
     }
