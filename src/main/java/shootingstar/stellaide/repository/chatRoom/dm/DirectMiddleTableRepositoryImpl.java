@@ -13,7 +13,6 @@ import java.util.UUID;
 public class DirectMiddleTableRepositoryImpl implements DirectMiddleTableRepositoryCustom{
     private final JPAQueryFactory queryFactory;
     public DirectMiddleTableRepositoryImpl(EntityManager em){this.queryFactory = new JPAQueryFactory(em);}
-
     @Override
     public List<FindAllDmRoomByUserIdDto> findAllByUserId(UUID userId) {
         return queryFactory
@@ -24,6 +23,7 @@ public class DirectMiddleTableRepositoryImpl implements DirectMiddleTableReposit
                 .from(directMiddleTable)
                 .where(userIdEq(userId))
                 .fetch();
+
     }
     private BooleanExpression userIdEq(UUID userId){
         return userId !=null ? directMiddleTable.user.userId.eq(userId) : null;

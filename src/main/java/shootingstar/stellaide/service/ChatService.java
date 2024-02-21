@@ -104,7 +104,6 @@ public class ChatService {
             throw new CustomException(NOT_FOUND_CHAT_ROOM);
         }
         return containerChatRoomMessageRepository.findAllByRoomId(roomId);
-        //return containerChatRoomMessageRepository.findAllMessageById(roomId, pageable);
     }
 
     /**
@@ -171,9 +170,8 @@ public class ChatService {
     /*
     채팅방 목록 불러오기
      */
-    public List<FindAllDmRoomByUserIdDto> findAllRoom(UUID userId) {
-        log.info("method : {}", findAllRoom(userId));
-        return directMiddleTableRepository.findAllByUserId(userId);
+    public List<FindAllDmRoomByUserIdDto> findAllRoom(String userId) {
+        return directMiddleTableRepository.findAllByUserId(UUID.fromString(userId));
     }
 
     private User findUserByUUID(String userUuid) {

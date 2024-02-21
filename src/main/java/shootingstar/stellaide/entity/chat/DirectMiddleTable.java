@@ -23,8 +23,11 @@ public class DirectMiddleTable {
     @JoinColumn(name = "dm_chat_id")
     private DirectChatRoom directChatRoom; //사용자의 방아이디
 
+    private String name;
+
     public DirectMiddleTable(User user, DirectChatRoom directChatRoom){
         this.user = user;
         this.directChatRoom = directChatRoom;
+        this.name = directChatRoom.getRoomName();
     }
 }

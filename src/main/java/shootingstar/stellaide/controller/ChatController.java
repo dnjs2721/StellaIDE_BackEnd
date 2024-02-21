@@ -41,10 +41,10 @@ public class ChatController {
      * DM 채팅방 목록 나열
      */
     @GetMapping("/dmChatRoomList")
-    public ResponseEntity<?> chatList(@RequestParam("userId") UUID userId){
-        log.info("api :{}",chatList(userId));
-        List<FindAllDmRoomByUserIdDto> roomList = chatService.findAllRoom(userId);
-        return ResponseEntity.ok().body(roomList);
+    public ResponseEntity<?> chatList(@RequestParam("userId") String userId){
+
+        List<FindAllDmRoomByUserIdDto> allRoom = chatService.findAllRoom(userId);
+        return ResponseEntity.ok().body(allRoom);
     }
 
     /**
@@ -65,5 +65,8 @@ public class ChatController {
         chatService.createDirectChatRoom(sendId, receivdId);
         return ResponseEntity.ok().body("채팅방 생성");
     }
+    /**
+     * DM 채팅방 삭제
+     */
 
 }

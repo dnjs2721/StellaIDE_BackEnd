@@ -8,5 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DirectMiddleTableRepository extends JpaRepository<DirectMiddleTable,Long>,DirectMiddleTableRepositoryCustom {
+
   //  List<DirectMiddleTable> findByDirectChatRoom_DmChatId(UUID userId);
 }
