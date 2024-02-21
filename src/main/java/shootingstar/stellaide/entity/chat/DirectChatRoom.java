@@ -19,13 +19,17 @@ public class DirectChatRoom {
     private Long dmChatRoomId;
     private String roomName;
 
-    private String sender;
-    private String receiver;
+
+    private UUID sender;
+    private UUID receiver;
 
     @OneToMany(mappedBy = "directChatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<DirectChatRoomMessage> messageList = new ArrayList<>();
 
-    public DirectChatRoom(String roomName, String sender, String receiver){
+    @OneToMany(mappedBy = "directChatRoom", cascade = CascadeType.REMOVE)
+    private final List<DirectMiddleTable> middleTable = new ArrayList<>();
+
+    public DirectChatRoom(String roomName, UUID sender, UUID receiver){
         this.roomName = roomName;
         this.sender = sender;
         this.receiver = receiver;

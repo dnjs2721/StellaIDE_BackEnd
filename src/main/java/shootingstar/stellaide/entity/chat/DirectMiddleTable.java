@@ -3,6 +3,7 @@ package shootingstar.stellaide.entity.chat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import shootingstar.stellaide.entity.user.User;
 
 import java.util.UUID;
 
@@ -14,15 +15,16 @@ public class DirectMiddleTable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tableId;//테이블 아이디
 
-    @OneToOne
-    @JoinColumn(name = "user_Id")
-    private UUID userId;//사용자 아이디
+    @ManyToOne
+    @JoinColumn(name = "dm_User_Id")
+    private User user;//사용자 아이디
 
+    @ManyToOne
+    @JoinColumn(name = "dm_chat_id")
+    private DirectChatRoom directChatRoom; //사용자의 방아이디
 
-    private Long roomId;//사용자의 방아이디
-
-    public DirectMiddleTable(UUID userId, Long roomId){
-        this.userId = userId;
-        this.roomId = roomId;
+    public DirectMiddleTable(User user, DirectChatRoom directChatRoom){
+        this.user = user;
+        this.directChatRoom = directChatRoom;
     }
 }
