@@ -158,6 +158,16 @@ public class SSHConnectionUtil {
         return executeCommand(command);
     }
 
+    public void saveFile(String filePath, String fileName, String fileContent) {
+        String remotePath = containerPath + filePath;
+        String command = homePath + "shell/exist_file_echo.sh " + fileContent + " " + remotePath + " " + fileName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Not Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
     public void createFile(String filePath, String fileName) {
         String remotePath = containerPath + filePath;
         String command = homePath + "shell/exist_file_touch.sh " + remotePath + " " + fileName;
@@ -171,8 +181,89 @@ public class SSHConnectionUtil {
     public void createDirectory(String directoryPath) {
         String remotePath = containerPath + directoryPath;
         String command = "mkdir " + remotePath;
+        log.info(command);
+
+        executeCommand(command);
+    }
+
+    public void copyFile(String filePath, String copyPath, String fileName) {
+        String remotePath = containerPath + filePath;
+        String remoteCopyPath = containerPath + copyPath;
+        String command = homePath + "shell/exist_file_cp.sh " + remotePath + " " + remoteCopyPath + " " + fileName;
+        log.info(command);
+
         String output = executeCommand(command);
-        log.info(output);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
+    public void copyDirectory(String directoryPath, String copyPath, String directoryName) {
+        String remotePath = containerPath + directoryPath;
+        String remoteCopyPath = containerPath + copyPath;
+        String command = homePath + "shell/exist_dir_cp.sh " + remotePath + " " + remoteCopyPath + " " + directoryName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
+    public void moveFile(String currentPath, String movedPath, String fileName) {
+        String remotePath = containerPath + currentPath;
+        String remoteMovedPath = containerPath + movedPath;
+        String command = homePath + "shell/exist_file_mv.sh " + remotePath + " " + remoteMovedPath + " " + fileName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
+    public void moveDirectory(String currentPath, String movedPath, String directoryName) {
+        String remotePath = containerPath + currentPath;
+        String remoteMovedPath = containerPath + movedPath;
+        String command = homePath + "shell/exist_dir_mv.sh " + remotePath + " " + remoteMovedPath + " " + directoryName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
+    public void renameFile(String filePath, String fileName, String changeName) {
+        String remotePath = containerPath + filePath;
+        String command = homePath + "shell/exist_file_rename.sh " + remotePath + " " + fileName + " " + changeName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
+    public void renameDirectory(String filePath, String directoryName, String changeName) {
+        String remotePath = containerPath + filePath;
+        String command = homePath + "shell/exist_dir_rename.sh " + remotePath + " " + directoryName + " " + changeName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
+    }
+
+    public void deleteFile(String filePath) {
+        String remotePath = containerPath + filePath;
+        String command = "rm " + remotePath;
+        log.info(command);
+
+        executeCommand(command);
+    }
+
+    public void deleteDirectory(String directoryPath) {
+        String remotePath = containerPath + directoryPath;
+        String command = "rm -r " + remotePath;
+        log.info(command);
+
+        executeCommand(command);
     }
 
     public String executionFile(String containerName, String filePath, ContainerType type) {

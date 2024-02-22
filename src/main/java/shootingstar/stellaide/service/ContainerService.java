@@ -109,8 +109,6 @@ public class ContainerService {
         sshConnectionUtil.deleteContainer(container.getName());
     }
 
-
-
     @Transactional
     public void shareContainer(String containerId, String userNickname, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
@@ -207,18 +205,159 @@ public class ContainerService {
         return sshConnectionUtil.getFileContent(container.getName(), filePath);
     }
 
-    public void createFile(String containerId, String filePath, String fileName) {
+    public void saveFile(String containerId, String filePath, String fileName, String fileContent, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
         Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath;
+        sshConnectionUtil.saveFile(path, fileName, fileContent);
+    }
+
+    public void createFile(String containerId, String filePath, String fileName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        duplicateService.checkForbiddenFileName(fileName);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
         String containerName = container.getName();
         String path = containerName + filePath;
         sshConnectionUtil.createFile(path, fileName);
     }
 
-    public void createDirectory(String containerId, String filePath, String directoryName) {
+    public void createDirectory(String containerId, String filePath, String directoryName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        duplicateService.checkForbiddenFileName(directoryName);
+
         Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
         String containerName = container.getName();
         String path = containerName + filePath + directoryName;
         sshConnectionUtil.createDirectory(path);
+    }
+
+    public void copyFile(String containerId, String filePath, String fileName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath;
+        String copyPath = containerName + filePath;
+        sshConnectionUtil.copyFile(path, copyPath, fileName);
+    }
+
+    public void copyDirectory(String containerId, String filePath, String directoryName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath;
+        String copyPath = containerName + filePath;
+        sshConnectionUtil.copyDirectory(path, copyPath, directoryName);
+    }
+
+    public void moveFile(String containerId, String currentFilePath, String movedFilePath, String fileName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String currentPath = containerName + currentFilePath;
+        String movedPath = containerName + movedFilePath;
+        sshConnectionUtil.moveFile(currentPath, movedPath, fileName);
+    }
+
+    public void moveDirectory(String containerId, String currentFilePath, String movedFilePath, String directoryName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String currentPath = containerName + currentFilePath;
+        String movedPath = containerName + movedFilePath;
+        sshConnectionUtil.moveDirectory(currentPath, movedPath, directoryName);
+    }
+
+    public void renameFile(String containerId, String filePath, String fileName, String changeName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        duplicateService.checkForbiddenFileName(changeName);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath;
+        sshConnectionUtil.renameFile(path, fileName, changeName);
+    }
+
+    public void renameDirectory(String containerId, String filePath, String directoryName, String changeName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        duplicateService.checkForbiddenFileName(changeName);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath;
+        sshConnectionUtil.renameDirectory(path, directoryName, changeName);
+    }
+
+    public void deleteFile(String containerId, String filePath, String fileName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath + fileName;
+        sshConnectionUtil.deleteFile(path);
+    }
+
+    public void deleteDirectory(String containerId, String filePath, String directoryName, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
+
+        Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
+
+        String containerName = container.getName();
+        String path = containerName + filePath + directoryName;
+        sshConnectionUtil.deleteDirectory(path);
     }
 
     public String executionFile(String containerId, String filePath) {
