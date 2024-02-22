@@ -95,15 +95,80 @@ public class ContainerController {
         return ResponseEntity.ok().body(fileContent);
     }
 
+    @PostMapping("/saveFile")
+    public ResponseEntity<String> saveFile(@RequestBody @Valid SaveFileReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.saveFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), reqDto.getFileContent(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
     @PostMapping("/createFile")
-    public ResponseEntity<String> createFile(@RequestBody @Valid CreateFileReqDto reqDto) {
-        containerService.createFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName());
+    public ResponseEntity<String> createFile(@RequestBody @Valid CreateFileReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.createFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), accessToken);
         return ResponseEntity.ok("");
     }
 
     @PostMapping("/createDirectory")
-    public ResponseEntity<String> createFile(@RequestBody @Valid CreateDirectoryReqDto reqDto) {
-        containerService.createDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName());
+    public ResponseEntity<String> createDirectory(@RequestBody @Valid CreateDirectoryReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.createDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/copyFile")
+    public ResponseEntity<String> copyFile(@RequestBody @Valid CreateFileReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.copyFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/copyDirectory")
+    public ResponseEntity<String> copyDirectory(@RequestBody @Valid CreateDirectoryReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.copyDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/moveFile")
+    public ResponseEntity<String> moveFile(@RequestBody @Valid MoveFileReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.moveFile(reqDto.getContainerId(), reqDto.getCurrentPath(), reqDto.getMovedPath(), reqDto.getFileName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/moveDirectory")
+    public ResponseEntity<String> moveDirectory(@RequestBody @Valid MoveDirectoryReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.moveDirectory(reqDto.getContainerId(), reqDto.getCurrentPath(), reqDto.getMovedPath(), reqDto.getDirectoryName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/renameFile")
+    public ResponseEntity<String> renameFile(@RequestBody @Valid RenameFileReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.renameFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), reqDto.getChangeName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/renameDirectory")
+    public ResponseEntity<String> renameDirectory(@RequestBody @Valid RenameDirectoryReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.renameDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), reqDto.getChangeName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @DeleteMapping("/deleteFile")
+    public ResponseEntity<String> deleteFile(@RequestBody @Valid CreateFileReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.deleteFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), accessToken);
+        return ResponseEntity.ok("");
+    }
+
+    @DeleteMapping("/deleteDirectory")
+    public ResponseEntity<String> deleteDirectory(@RequestBody @Valid CreateDirectoryReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        containerService.deleteDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), accessToken);
         return ResponseEntity.ok("");
     }
 
