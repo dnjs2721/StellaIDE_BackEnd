@@ -11,8 +11,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
-#        use_sql_comments: true
+    open-in-view: true
+  #        use_sql_comments: true
 #        show_sql: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
 
   profiles:
     include: database, redis, mail, jwt, storage, port

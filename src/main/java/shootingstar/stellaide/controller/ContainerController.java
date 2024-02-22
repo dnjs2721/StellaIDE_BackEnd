@@ -35,11 +35,11 @@ public class ContainerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createContainer(@Valid @RequestBody CreateContainerReqDto reqDto,
+    public ResponseEntity<ContainerDto> createContainer(@Valid @RequestBody CreateContainerReqDto reqDto,
                                                   HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
-        containerService.createContainer(reqDto.getContainerType(), reqDto.getContainerName(), reqDto.getContainerDescription(), accessToken);
-        return ResponseEntity.ok().body("컨테이너 생성에 성공하였습니다.");
+        ContainerDto containerDto = containerService.createContainer(reqDto.getContainerType(), reqDto.getContainerName(), reqDto.getContainerDescription(), accessToken);
+        return ResponseEntity.ok().body(containerDto);
     }
 
     @PatchMapping("/edit")
@@ -81,6 +81,12 @@ public class ContainerController {
         containerService.cancelContainerSharing(containerId, userNickname, accessToken);
 
         return ResponseEntity.ok().body("컨테이너 공유 해제에 성공하였습니다.");
+    }
+
+    @GetMapping("/type/{containerId}")
+    public ResponseEntity<String> getContainerType(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId) {
+        String containerType = containerService.getContainerType(containerId);
+        return ResponseEntity.ok().body(containerType);
     }
 
     @GetMapping("/treeInfo/{containerId}")

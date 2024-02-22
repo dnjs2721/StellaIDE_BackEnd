@@ -158,16 +158,21 @@ public class SSHConnectionUtil {
         return executeCommand(command);
     }
 
-    public void createFile(String filePath) {
+    public void createFile(String filePath, String fileName) {
         String remotePath = containerPath + filePath;
-        String command = "touch " + remotePath;
-        executeCommand(command);
+        String command = homePath + "shell/exist_file_touch.sh " + remotePath + " " + fileName;
+        log.info(command);
+
+        String output = executeCommand(command);
+        log.info(output.trim());
+        if (output.trim().equals("Exist")) throw new CustomException(STORAGE_COMMEND_ERROR);
     }
 
     public void createDirectory(String directoryPath) {
         String remotePath = containerPath + directoryPath;
         String command = "mkdir " + remotePath;
-        executeCommand(command);
+        String output = executeCommand(command);
+        log.info(output);
     }
 
     public String executionFile(String containerName, String filePath, ContainerType type) {

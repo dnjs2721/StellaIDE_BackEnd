@@ -70,8 +70,9 @@ public enum ErrorCode {
     INCORRECT_FORMAT_ROOM_TYPE(BAD_REQUEST, "3001", "잘못된 채팅방 타입입니다."),
     INCORRECT_FORMAT_ROOM_ID(BAD_REQUEST, "3002", "잘못된 채팅방 고유번호입니다."),
 
-    WEB_SOCKET_SESSION_ERROR(BAD_REQUEST,"3200", "존재하지 않는 웹소켓 세션입니다."),
     NOT_FOUND_CHAT_ROOM(NOT_FOUND, "3201", "존재하지 않는 채팅방입니다."),
+
+    WEB_SOCKET_MESSAGE_SEND_ERROR(BAD_REQUEST,"3300", "메세지 전송에 실패하였습니다."),
     ;
 
     private final HttpStatus httpStatus;

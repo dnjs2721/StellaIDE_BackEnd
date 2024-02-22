@@ -36,7 +36,7 @@ public class User extends BaseTimeTimeEntity implements UserDetails {
 
     private String profileImg;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<Container> ownedContainers = new ArrayList<>();
 
     @OneToMany(mappedBy = "sharedUser", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)

@@ -8,4 +8,5 @@ import lombok.Data;
 public class GetRoomResDto {
     private String nickname;
     private Long roomId;
+    private String containerName;
 }
