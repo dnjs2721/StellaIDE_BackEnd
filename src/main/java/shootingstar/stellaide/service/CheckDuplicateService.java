@@ -65,4 +65,14 @@ public class CheckDuplicateService {
             throw new CustomException(INCORRECT_FORMAT_CONTAINER_NAME);
         }
     }
+
+    public void checkForbiddenFileName(String fileName) {
+        // 알파벳, 숫자, 마침표(.), 밑줄(_), 하이픈(-)만 허용
+        String regex = "^[\\w\\-_.]+$";
+
+        boolean matches = Pattern.matches(regex, fileName);
+        if (!matches) {
+            throw new CustomException(INCORRECT_FORMAT_FILE_NAME);
+        }
+    }
 }
