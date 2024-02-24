@@ -14,8 +14,10 @@ import shootingstar.stellaide.repository.chatRoom.container.ContainerChatRoomMes
 import shootingstar.stellaide.repository.chatRoom.container.ContainerChatRoomRepository;
 import shootingstar.stellaide.repository.chatRoom.dm.DirectChatRoomMessageRepository;
 import shootingstar.stellaide.repository.chatRoom.dm.DirectChatRoomRepository;
+import shootingstar.stellaide.repository.chatRoom.dm.DirectMiddleTableRepository;
 import shootingstar.stellaide.repository.chatRoom.dto.FindAllChatMessageByRoomIdDto;
 import shootingstar.stellaide.repository.chatRoom.dto.FindAllDmMessageByRoomIdDto;
+import shootingstar.stellaide.repository.chatRoom.dto.FindAllDmRoomByUserIdDto;
 import shootingstar.stellaide.repository.chatRoom.global.GlobalChatRoomRepository;
 import shootingstar.stellaide.repository.user.UserRepository;
 import shootingstar.stellaide.service.dto.ChatRoomDto;
@@ -39,6 +41,7 @@ public class ChatService {
 
     private final DirectChatRoomRepository directChatRoomRepository;
     private final DirectChatRoomMessageRepository directChatRoomMessageRepository;
+    private final DirectMiddleTableRepository directMiddleTableRepository;
 
     private final GlobalChatRoomRepository globalChatRoomRepository;
 
@@ -96,11 +99,11 @@ public class ChatService {
     }
 
     //컨테이너 채팅 불러오기
-    public Page<FindAllChatMessageByRoomIdDto> getAllMessagePage(Long roomId, Pageable pageable){
+    public List<FindAllChatMessageByRoomIdDto> getAllMessagePage(Long roomId){
         if (!containerChatRoomRepository.existsById(roomId)) {
             throw new CustomException(NOT_FOUND_CHAT_ROOM);
         }
-        return containerChatRoomMessageRepository.findAllMessageById(roomId, pageable);
+        return containerChatRoomMessageRepository.findAllByRoomId(roomId);
     }
 
     /**
@@ -130,8 +133,15 @@ public class ChatService {
         User sender = findUserByUUID(sendId);
         User receiver = findUserByUUID(receiveId);
         String roomName = sender.getNickname() + " & " + receiver.getNickname() + " Chat Room";
-        DirectChatRoom directChatRoom = new DirectChatRoom(roomName, sender, receiver);
+        //directChatRoom 생성
+        DirectChatRoom directChatRoom = new DirectChatRoom(roomName,UUID.fromString(sendId),UUID.fromString(receiveId));
         directChatRoomRepository.save(directChatRoom);
+
+        //direct table 생성
+        DirectMiddleTable directMiddleTableSend = new DirectMiddleTable(sender,directChatRoom);
+        DirectMiddleTable directMiddleTableReceive = new DirectMiddleTable(receiver,directChatRoom);
+        directMiddleTableRepository.save(directMiddleTableSend);
+        directMiddleTableRepository.save(directMiddleTableReceive);
     }
     //dm 메세지 저장
     @Transactional
@@ -151,14 +161,17 @@ public class ChatService {
 
     //디엠 채팅 불러오기
     public Page<FindAllDmMessageByRoomIdDto> getAllDMMessagePage(Long roomId, Pageable pageable){
+        if (!directChatRoomMessageRepository.existsById(roomId)) {
+            throw new CustomException(NOT_FOUND_CHAT_ROOM);
+        }
         return directChatRoomMessageRepository.findAllDMMessageById(roomId,pageable);
     }
 
     /*
     채팅방 목록 불러오기
      */
-    public List<DirectChatRoom> findAllRoom() {
-        return directChatRoomRepository.findAll();
+    public List<FindAllDmRoomByUserIdDto> findAllRoom(String userId) {
+        return directMiddleTableRepository.findAllByUserId(UUID.fromString(userId));
     }
 
     private User findUserByUUID(String userUuid) {

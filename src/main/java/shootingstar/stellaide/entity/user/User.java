@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import shootingstar.stellaide.entity.BaseTimeTimeEntity;
+import shootingstar.stellaide.entity.chat.DirectMiddleTable;
 import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.entity.SharedUserContainer;
 
@@ -41,6 +42,9 @@ public class User extends BaseTimeTimeEntity implements UserDetails {
 
     @OneToMany(mappedBy = "sharedUser", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<SharedUserContainer> sharedContainers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<DirectMiddleTable> directMiddleTables = new ArrayList<>();
 
     public User(String email, String password, String nickname) {
         this.email = email;
