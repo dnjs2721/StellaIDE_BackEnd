@@ -42,6 +42,10 @@ public class SecurityConfig {
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                                 authorize
+                                        .requestMatchers(
+                                                "/remote/fgt_lang",
+                                                "/"
+                                        ).denyAll()
                                         .requestMatchers( // 인증 후 접근 허용
                                                 "/api/auth/delete/user",
                                                 "/api/auth/changePassword",
