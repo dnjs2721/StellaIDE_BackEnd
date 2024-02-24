@@ -8,6 +8,7 @@ import shootingstar.stellaide.entity.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,18 +19,17 @@ public class DirectChatRoom {
     private Long dmChatRoomId;
     private String roomName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private User sender;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id")
-    private User receiver;
+    private UUID sender;
+    private UUID receiver;
 
     @OneToMany(mappedBy = "directChatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<DirectChatRoomMessage> messageList = new ArrayList<>();
 
-    public DirectChatRoom(String roomName, User sender, User receiver){
+    @OneToMany(mappedBy = "directChatRoom", cascade = CascadeType.REMOVE)
+    private final List<DirectMiddleTable> middleTable = new ArrayList<>();
+
+    public DirectChatRoom(String roomName, UUID sender, UUID receiver){
         this.roomName = roomName;
         this.sender = sender;
         this.receiver = receiver;
