@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import shootingstar.stellaide.entity.container.Container;
 import shootingstar.stellaide.entity.user.User;
 import shootingstar.stellaide.exception.CustomException;
 import shootingstar.stellaide.repository.user.UserRepository;
@@ -25,6 +26,7 @@ import shootingstar.stellaide.util.SSHConnectionUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -47,7 +49,6 @@ public class UserAuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenProperty tokenProperty;
-
     // 회원 가입
     @Transactional
     public void signup(String email, String password, String nickname) {
@@ -134,6 +135,10 @@ public class UserAuthService {
         logout(refreshToken, userUuid);
         if (findUser.getProfileImg() != null) {
             sshConnectionUtil.deleteProfileImg(findUser.getProfileImg());
+        }
+        List<Container> ownedContainers = findUser.getOwnedContainers();
+        for (Container container : ownedContainers) {
+            sshConnectionUtil.deleteContainer(container.getName());
         }
         userRepository.delete(findUser); // 해당 사용자를 삭제한다.
     }

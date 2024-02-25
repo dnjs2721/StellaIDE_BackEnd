@@ -33,9 +33,7 @@ public class ContainerRepositoryCustomImpl implements ContainerRepositoryCustom 
                         container.editUserNickname
                         ))
                 .from(container)
-                .leftJoin(QSharedUserContainer.sharedUserContainer)
-                .on(container.containerId.eq(QSharedUserContainer.sharedUserContainer.container.containerId))
-                .where(container.owner.userId.eq(userUuid).or(QSharedUserContainer.sharedUserContainer.sharedUser.userId.eq(userUuid)))
+                .where(container.owner.userId.eq(userUuid))
                 .fetch();
 
         List<ContainerDto> shareContainers = queryFactory

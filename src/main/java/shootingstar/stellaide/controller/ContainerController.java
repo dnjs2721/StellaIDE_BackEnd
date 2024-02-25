@@ -35,11 +35,11 @@ public class ContainerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createContainer(@Valid @RequestBody CreateContainerReqDto reqDto,
+    public ResponseEntity<ContainerDto> createContainer(@Valid @RequestBody CreateContainerReqDto reqDto,
                                                   HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
-        containerService.createContainer(reqDto.getContainerType(), reqDto.getContainerName(), reqDto.getContainerDescription(), accessToken);
-        return ResponseEntity.ok().body("컨테이너 생성에 성공하였습니다.");
+        ContainerDto containerDto = containerService.createContainer(reqDto.getContainerType(), reqDto.getContainerName(), reqDto.getContainerDescription(), accessToken);
+        return ResponseEntity.ok().body(containerDto);
     }
 
     @PatchMapping("/edit")
@@ -83,15 +83,26 @@ public class ContainerController {
         return ResponseEntity.ok().body("컨테이너 공유 해제에 성공하였습니다.");
     }
 
+    @GetMapping("/type/{containerId}")
+    public ResponseEntity<String> getContainerType(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+
+        String containerType = containerService.getContainerType(containerId, accessToken);
+        return ResponseEntity.ok().body(containerType);
+    }
+
     @GetMapping("/treeInfo/{containerId}")
-    public ResponseEntity<ContainerTreeResDto> getTreeInfo(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId) {
-        ContainerTreeResDto treeInfo = containerService.getTreeInfo(containerId);
+    public ResponseEntity<ContainerTreeResDto> getTreeInfo(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+
+        ContainerTreeResDto treeInfo = containerService.getTreeInfo(containerId, accessToken);
         return ResponseEntity.ok().body(treeInfo);
     }
 
     @GetMapping("/fileContent")
-    public ResponseEntity<String> getFileContent(@Valid @ModelAttribute FileContentReqDto reqDto) {
-        String fileContent = containerService.getFileContent(reqDto.getContainerId(), reqDto.getFilePath());
+    public ResponseEntity<String> getFileContent(@Valid @ModelAttribute FileContentReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        String fileContent = containerService.getFileContent(reqDto.getContainerId(), reqDto.getFilePath(), accessToken);
         return ResponseEntity.ok().body(fileContent);
     }
 
@@ -99,21 +110,21 @@ public class ContainerController {
     public ResponseEntity<String> saveFile(@RequestBody @Valid SaveFileReqDto reqDto, HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.saveFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), reqDto.getFileContent(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 파일 저장에 성공하였습니다.");
     }
 
     @PostMapping("/createFile")
     public ResponseEntity<String> createFile(@RequestBody @Valid CreateFileReqDto reqDto, HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.createFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 파일 생성에 성공하였습니다.");
     }
 
     @PostMapping("/createDirectory")
     public ResponseEntity<String> createDirectory(@RequestBody @Valid CreateDirectoryReqDto reqDto, HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.createDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 디렉토리 생성에 성공하였습니다.");
     }
 
     @PostMapping("/copyFile")
@@ -148,28 +159,30 @@ public class ContainerController {
     public ResponseEntity<String> renameFile(@RequestBody @Valid RenameFileReqDto reqDto, HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.renameFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), reqDto.getChangeName(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 파일 이름 변경에 성공하였습니다.");
     }
 
     @PostMapping("/renameDirectory")
     public ResponseEntity<String> renameDirectory(@RequestBody @Valid RenameDirectoryReqDto reqDto, HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.renameDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), reqDto.getChangeName(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 디렉토리 이름 변경에 성공하였습니다.");
     }
 
     @DeleteMapping("/deleteFile")
-    public ResponseEntity<String> deleteFile(@RequestBody @Valid CreateFileReqDto reqDto, HttpServletRequest request) {
+    public ResponseEntity<String> deleteFile(@ModelAttribute @Valid CreateFileReqDto reqDto,
+                                             HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.deleteFile(reqDto.getContainerId(), reqDto.getPath(), reqDto.getFileName(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 파일 삭제에 성공하였습니다.");
     }
 
     @DeleteMapping("/deleteDirectory")
-    public ResponseEntity<String> deleteDirectory(@RequestBody @Valid CreateDirectoryReqDto reqDto, HttpServletRequest request) {
+    public ResponseEntity<String> deleteDirectory(@ModelAttribute @Valid CreateDirectoryReqDto reqDto,
+                                                  HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
         containerService.deleteDirectory(reqDto.getContainerId(), reqDto.getPath(), reqDto.getDirectoryName(), accessToken);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok("컨테이너 디렉토리 삭제에 성공하였습니다.");
     }
 
     @PostMapping("/execution")
@@ -182,7 +195,7 @@ public class ContainerController {
     public ResponseEntity<GetRoomResDto> getRoomId(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId,
                                                    HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
-        GetRoomResDto roomInfo = containerService.getRoomId(containerId, accessToken);
+        GetRoomResDto roomInfo = containerService.getRoomInfo(containerId, accessToken);
         return ResponseEntity.ok().body(roomInfo);
     }
 
