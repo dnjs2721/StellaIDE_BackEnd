@@ -1,0 +1,49 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### QueryDsl ###
+**/src/main/generated/
+
+### config ###
+**/src/main/resources/application-database.yml
+**/src/main/resources/application-redis.yml
+**/src/main/resources/application-mail.yml
+**/src/main/resources/application-jwt.yml
+**/src/main/resources/application-storage.yml
+**/src/main/resources/application-port.yml
+**/src/main/resources/ssl/keystore.p12
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/

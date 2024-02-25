@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  web:
+    resources:
+      add-mappings: false
+  ## JPA Setting Info
+  jpa:
+    hibernate:
+      ddl-auto: none # option type: create, create-drop, update, validate, none
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: true
+  #        use_sql_comments: true
+#        show_sql: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
+  profiles:
+    include: database, redis, mail, jwt, storage, port
+
+logging:
+  level:
+    org.hibernate.sql: debug
+#    root: trace
