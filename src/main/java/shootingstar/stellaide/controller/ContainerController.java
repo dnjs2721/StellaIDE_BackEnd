@@ -84,20 +84,25 @@ public class ContainerController {
     }
 
     @GetMapping("/type/{containerId}")
-    public ResponseEntity<String> getContainerType(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId) {
-        String containerType = containerService.getContainerType(containerId);
+    public ResponseEntity<String> getContainerType(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+
+        String containerType = containerService.getContainerType(containerId, accessToken);
         return ResponseEntity.ok().body(containerType);
     }
 
     @GetMapping("/treeInfo/{containerId}")
-    public ResponseEntity<ContainerTreeResDto> getTreeInfo(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId) {
-        ContainerTreeResDto treeInfo = containerService.getTreeInfo(containerId);
+    public ResponseEntity<ContainerTreeResDto> getTreeInfo(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+
+        ContainerTreeResDto treeInfo = containerService.getTreeInfo(containerId, accessToken);
         return ResponseEntity.ok().body(treeInfo);
     }
 
     @GetMapping("/fileContent")
-    public ResponseEntity<String> getFileContent(@Valid @ModelAttribute FileContentReqDto reqDto) {
-        String fileContent = containerService.getFileContent(reqDto.getContainerId(), reqDto.getFilePath());
+    public ResponseEntity<String> getFileContent(@Valid @ModelAttribute FileContentReqDto reqDto, HttpServletRequest request) {
+        String accessToken = getTokenFromHeader(request);
+        String fileContent = containerService.getFileContent(reqDto.getContainerId(), reqDto.getFilePath(), accessToken);
         return ResponseEntity.ok().body(fileContent);
     }
 
@@ -190,7 +195,7 @@ public class ContainerController {
     public ResponseEntity<GetRoomResDto> getRoomId(@Size(min = 36, max = 36) @PathVariable("containerId") String containerId,
                                                    HttpServletRequest request) {
         String accessToken = getTokenFromHeader(request);
-        GetRoomResDto roomInfo = containerService.getRoomId(containerId, accessToken);
+        GetRoomResDto roomInfo = containerService.getRoomInfo(containerId, accessToken);
         return ResponseEntity.ok().body(roomInfo);
     }
 

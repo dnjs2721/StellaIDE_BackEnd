@@ -79,7 +79,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 여기에 허용할 오리진 추가
+        configuration.setAllowedOrigins(List.of("http://stellar-ide.kro.kr", "http://localhost:3000")); // 여기에 허용할 오리진 추가
         configuration.setAllowedMethods(Collections.singletonList("*")); // 허용할 HTTP 메소드 설정
 
         configuration.setAllowCredentials(true); // 쿠키를 넘기기 위해 사용

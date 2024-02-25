@@ -33,8 +33,6 @@ public class ContainerRepositoryCustomImpl implements ContainerRepositoryCustom 
                         container.editUserNickname
                         ))
                 .from(container)
-                .leftJoin(QSharedUserContainer.sharedUserContainer)
-                .on(container.containerId.eq(QSharedUserContainer.sharedUserContainer.container.containerId))
                 .where(container.owner.userId.eq(userUuid))
                 .fetch();
 

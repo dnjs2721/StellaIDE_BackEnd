@@ -60,4 +60,7 @@ public class Container extends BaseTimeTimeEntity {
     public void changeDescription(String description) {
         this.description = description;
     }
+    public void changeEditUserNickname(String editUserNickname) {
+        this.editUserNickname = editUserNickname;
+    }
 }

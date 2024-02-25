@@ -91,7 +91,7 @@ public class ContainerService {
         User user = findUserByUUID(userUuid);
 
         checkPermissionIncludeShared(user, container);
-
+        container.changeEditUserNickname(user.getNickname());
         container.changeDescription(description);
     }
 
@@ -178,12 +178,16 @@ public class ContainerService {
         }
     }
 
-    public String getContainerType(String containerId) {
+    public String getContainerType(String containerId, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
         Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
         return container.getType().toString();
     }
 
-    public GetRoomResDto getRoomId(String containerId, String accessToken) {
+    public GetRoomResDto getRoomInfo(String containerId, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
         User user = findUserByUUID(userUuid);
@@ -194,17 +198,26 @@ public class ContainerService {
         return new GetRoomResDto(user.getNickname(), container.getContainerChatRoom().getChatRoomId(), container.getName());
     }
 
-    public ContainerTreeResDto getTreeInfo(String containerId) {
+    public ContainerTreeResDto getTreeInfo(String containerId, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
         Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
         String containerTree = sshConnectionUtil.getContainerTree(container.getName());
         return parseTextToDto(containerTree, container.getName());
     }
 
-    public String getFileContent(String containerId, String filePath) {
+    public String getFileContent(String containerId, String filePath, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
+        String userUuid = authentication.getName();
+        User user = findUserByUUID(userUuid);
         Container container = findContainerByUUID(containerId);
+        checkPermissionIncludeShared(user, container);
         return sshConnectionUtil.getFileContent(container.getName(), filePath);
     }
 
+    @Transactional
     public void saveFile(String containerId, String filePath, String fileName, String fileContent, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
@@ -216,8 +229,10 @@ public class ContainerService {
         String containerName = container.getName();
         String path = containerName + filePath;
         sshConnectionUtil.saveFile(path, fileName, fileContent);
+        container.changeEditUserNickname(user.getNickname());
     }
 
+    @Transactional
     public void createFile(String containerId, String filePath, String fileName, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
@@ -231,8 +246,10 @@ public class ContainerService {
         String containerName = container.getName();
         String path = containerName + filePath;
         sshConnectionUtil.createFile(path, fileName);
+        container.changeEditUserNickname(user.getNickname());
     }
 
+    @Transactional
     public void createDirectory(String containerId, String filePath, String directoryName, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
@@ -246,6 +263,7 @@ public class ContainerService {
         String containerName = container.getName();
         String path = containerName + filePath + directoryName;
         sshConnectionUtil.createDirectory(path);
+        container.changeEditUserNickname(user.getNickname());
     }
 
     public void copyFile(String containerId, String filePath, String fileName, String accessToken) {
@@ -334,6 +352,7 @@ public class ContainerService {
         sshConnectionUtil.renameDirectory(path, directoryName, changeName);
     }
 
+    @Transactional
     public void deleteFile(String containerId, String filePath, String fileName, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
@@ -345,8 +364,10 @@ public class ContainerService {
         String containerName = container.getName();
         String path = containerName + filePath + fileName;
         sshConnectionUtil.deleteFile(path);
+        container.changeEditUserNickname(user.getNickname());
     }
 
+    @Transactional
     public void deleteDirectory(String containerId, String filePath, String directoryName, String accessToken) {
         Authentication authentication = jwtTokenProvider.getAuthenticationFromAccessToken(accessToken);
         String userUuid = authentication.getName();
@@ -358,6 +379,7 @@ public class ContainerService {
         String containerName = container.getName();
         String path = containerName + filePath + directoryName;
         sshConnectionUtil.deleteDirectory(path);
+        container.changeEditUserNickname(user.getNickname());
     }
 
     public String executionFile(String containerId, String filePath) {
