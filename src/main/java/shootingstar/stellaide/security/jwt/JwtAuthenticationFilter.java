@@ -21,7 +21,9 @@ import shootingstar.stellaide.util.LoginListRedisUtil;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String token = resolveToken(httpRequest);
         String requestURI = httpRequest.getRequestURI();
-        log.info("JwtAuthenticationFilter requestURI {}", requestURI);
+        log.info("JwtAuthenticationFilter requestURI :  {}, addr : {}", requestURI, httpRequest.getRemoteAddr());
         /*
           /api/auth/refresh, /api/auth/logout, /error 엔드 포인트는 JWT 검증을 하지 않는다
           /api/auth/refresh, /api/auth/logout 엔드 포인트는 Controller, Service 에서 별도의 검증을 한다.
